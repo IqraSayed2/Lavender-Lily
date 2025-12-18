@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Payment Status - Lavender Lily{% endblock %}
+
+{% block content %}
+
+<div class="payment-status-body">
+
+  <!-- SUCCESS -->
+  {% if status == "success" %}
+  <div class="tg-card success-card">
+    <div class="icon-container">
+      <i class="fas fa-check-circle tg-success-icon"></i>
+      <div class="success-pulse"></div>
+    </div>
+    <h2 class="tg-success-title">Payment Successful!</h2>
+    <p class="tg-success-msg">
+      Your order has been placed successfully. A confirmation email has been sent to your inbox.
+    </p>
+
+    <div class="button-group">
+      <a href="{% url 'profile' %}" class="tg-success-btn primary-btn">
+        <i class="fas fa-shopping-bag"></i>
+        View Orders
+      </a>
+      <a href="{% url 'shop' %}" class="tg-success-btn secondary-btn">
+        <i class="fas fa-arrow-left"></i>
+        Continue Shopping
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- FAILED -->
+  {% if status == "failed" %}
+  <div class="tg-card fail-card">
+    <div class="icon-container">
+      <i class="fas fa-times-circle tg-fail-icon"></i>
+      <div class="fail-pulse"></div>
+    </div>
+    <h2 class="tg-fail-title">Payment Failed!</h2>
+    <p class="tg-fail-msg">
+      Unfortunately, your payment could not be processed. Please try again.
+    </p>
+
+    <div class="button-group">
+      <a href="{% url 'checkout' %}" class="tg-fail-btn primary-btn">
+        <i class="fas fa-redo"></i>
+        Try Again
+      </a>
+      <a href="{% url 'cart' %}" class="tg-fail-btn secondary-btn">
+        <i class="fas fa-shopping-cart"></i>
+        Review Cart
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+.payment-status-body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.success-card{
+    background-color: rgb(26, 118, 88);
+}
+
+.fail-card{
+    background-color: #ef4444;
+}
+
+.tg-card {
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  z-index: 2;
+}
+
+.tg-success-icon {
+  font-size: 4rem;
+  color: white;
+  margin-bottom: 1.5rem;
+}
+
+.tg-success-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.tg-success-msg {
+  font-size: 1.1rem;
+  color: white;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.tg-success-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.tg-success-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  text-decoration: none;
+  color: white;
+}
+
+.tg-fail-icon {
+  font-size: 4rem;
+  color: white;
+  margin-bottom: 1.5rem;
+}
+
+.tg-fail-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.tg-fail-msg {
+  font-size: 1.1rem;
+  color: white;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.tg-fail-btn {
+  background: white;
+  color: black;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.tg-fail-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  text-decoration: none;
+  color: white;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.button-group a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 160px;
+  justify-content: center;
+  text-decoration: none;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.primary-btn {
+  flex: 1;
+}
+
+.secondary-btn {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: black !important;
+  border: 2px solid rgba(107, 114, 128, 0.2) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 1) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+  color: #6b7280 !important;
+  text-decoration: none !important;
+}
+  .tg-card {
+    padding: 2rem;
+    margin: 1rem;
+  }
+
+  .tg-success-title,
+  .tg-fail-title {
+    font-size: 1.5rem;
+  }
+
+  .tg-success-msg,
+  .tg-fail-msg {
+    font-size: 1rem;
+  }
+</style>
+
+{% endblock %}

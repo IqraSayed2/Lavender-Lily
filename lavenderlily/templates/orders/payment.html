@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Complete Payment{% endblock %}
+
+{% block content %}
+
+<!-- Payment Section -->
+<section class="payment-page-section">
+  <div class="container">
+    <div class="row">
+      <!-- Header -->
+      <div class="col-12">
+        <div class="payment-page-header">
+          <div class="text-center">
+            <h1 class="payment-page-title">Complete Your Payment</h1>
+            <p class="payment-results-count">Secure payment processing with Razorpay</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+
+        <!-- Order Items Card -->
+        <div class="payment-page-form-card">
+          <div class="payment-page-card-header">
+            <h2 class="payment-page-section-title">
+              <i class="fas fa-list me-2"></i>
+              Order Items
+            </h2>
+          </div>
+
+          <div class="payment-order-items">
+            {% for item in order.items.all %}
+            <div class="payment-item">
+              <div class="payment-item-image">
+                {% if item.product.image_main %}
+                  <img src="{{ item.product.image_main.url }}" alt="{{ item.product.name }}" class="payment-item-img">
+                {% else %}
+                  <div class="payment-item-placeholder">
+                    <i class="fas fa-image"></i>
+                  </div>
+                {% endif %}
+              </div>
+              <div class="payment-item-details">
+                <h6 class="payment-item-name">{{ item.product.name }}</h6>
+                <p class="payment-item-meta">Quantity: {{ item.quantity }}</p>
+                <p class="payment-item-price">{{ item.price }} {{ currency }} each</p>
+              </div>
+              <div class="payment-item-total">
+                <span class="payment-item-total-price">{{ item.subtotal }} {{ currency }}</span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Order Totals -->
+          <div class="payment-totals">
+            <div class="payment-total-row">
+              <span class="payment-total-label">Subtotal:</span>
+              <span class="payment-total-value">{{ subtotal }} {{ currency }}</span>
+            </div>
+            <div class="payment-total-row">
+              <span class="payment-total-label">Shipping:</span>
+              <span class="payment-total-value">{{ shipping }} {{ currency }}</span>
+            </div>
+            <div class="payment-total-row">
+              <span class="payment-total-label">Tax (5% VAT):</span>
+              <span class="payment-total-value">{{ tax }} {{ currency }}</span>
+            </div>
+            <div class="payment-total-row payment-grand-total">
+              <span class="payment-total-label">Total Amount:</span>
+              <span class="payment-total-value">{{ order.total_amount }} {{ currency }}</span>
+            </div>
+          </div>
+        </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="payment-order-info">
+                <h5 class="payment-info-title">Order Details</h5>
+                <div class="payment-info-item">
+                  <span class="payment-label">Order Number:</span>
+                  <span class="payment-value">{{ order.order_number }}</span>
+                </div>
+                <div class="payment-info-item">
+                  <span class="payment-label">Total Amount:</span>
+                  <span class="payment-value payment-amount">{{ order.total_amount }} {{ currency }}</span>
+                </div>
+                <div class="payment-info-item">
+                  <span class="payment-label">Customer:</span>
+                  <span class="payment-value">{{ user.first_name }} {{ user.last_name }}</span>
+                </div>
+                <div class="payment-info-item">
+                  <span class="payment-label">Email:</span>
+                  <span class="payment-value">{{ user.email }}</span>
+                </div>
+                <div class="payment-info-item">
+                  <span class="payment-label">Phone:</span>
+                  <span class="payment-value">{{ customer_phone|default:"Not provided" }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="payment-method-info">
+                <h5 class="payment-info-title">Payment Method</h5>
+                <div class="payment-method-card">
+                  <div class="payment-method-icon">
+                    <i class="fab fa-cc-visa"></i>
+                  </div>
+                  <div class="llpayment-method-details">
+                    <h6 class="llpayment-method-name">Razorpay</h6>
+                    <p class="payment-method-desc">Secure payment gateway</p>
+                    <div class="payment-security-badges">
+                      <span class="payment-badge">
+                        <i class="fas fa-shield-alt"></i> SSL Encrypted
+                      </span>
+                      <span class="payment-badge">
+                        <i class="fas fa-lock"></i> Secure
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Action Card -->
+        <div class="payment-page-amt-card">
+          <div class="payment-page-card-header">
+            <h2 class="payment-page-section-title">
+              <i class="fas fa-credit-card me-2"></i>
+              Payment Details
+            </h2>
+          </div>
+          <div class="text-center">
+            <div class="payment-action-content">
+              <div class="payment-amount-display">
+                <span class="payment-amount-label">Amount to Pay</span>
+                <div class="payment-amount-value">{{ order.total_amount }} {{ currency }}</div>
+              </div>
+
+              <div class="payment-form">
+                <button id="rzp-button1" class="payment-pay-btn">
+                  <i class="fas fa-credit-card me-2"></i>
+                  Pay {{ order.total_amount }} {{ currency }}
+                </button>
+              </div>
+
+              <div class="payment-notice">
+                <i class="fas fa-info-circle me-1"></i>
+                Your payment is secured by Razorpay
+              </div>
+
+              <div class="payment-security-notice">
+                <i class="fas fa-lock me-1"></i>
+                Your payment information is secure and encrypted
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Back to Checkout -->
+        <div class="text-center mt-5">
+          <a href="{% url 'checkout' %}" class="payment-back-link">
+            <i class="fas fa-arrow-left"></i> Back to Checkout
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const options = {
+        "key": "{{ razorpay_key_id }}",
+        "amount": "{{ amount }}",
+        "currency": "{{ currency }}",
+        "name": "Lavender Lily",
+        "description": "Order #{{ order.order_number }}",
+        "order_id": "{{ razorpay_order_id }}",
+        "prefill": {
+            "name": "{{ customer_name }}",
+            "email": "{{ customer_email }}",
+            "contact": "{{ customer_phone }}"
+        },
+        "theme": {
+            "color": "#7c3aed"
+        },
+        "handler": function (response) {
+            // Handle successful payment
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ callback_url }}';
+
+            const fields = {
+                'razorpay_payment_id': response.razorpay_payment_id,
+                'razorpay_order_id': response.razorpay_order_id,
+                'razorpay_signature': response.razorpay_signature
+            };
+
+            for (const [key, value] of Object.entries(fields)) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        },
+        "modal": {
+            "ondismiss": function() {
+                // Handle payment modal dismissal (user cancelled)
+                window.location.href = '{{ callback_url }}?razorpay_order_id={{ razorpay_order_id }}';
+            }
+        }
+    };
+
+    const rzp = new Razorpay(options);
+
+    document.getElementById('rzp-button1').onclick = function(e) {
+        rzp.open();
+        e.preventDefault();
+    };
+});
+</script>
+
+{% endblock %}

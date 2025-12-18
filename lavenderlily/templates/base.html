@@ -1,0 +1,247 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Lavender Lily{% endblock %}</title>
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+    <link rel="stylesheet" href="{% static 'adminpanel.css' %}" />
+  </head>
+
+  <body>
+    <!-- 🌸 NAVBAR -->
+    <nav class="llshop-navbar">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <!-- Brand -->
+          <a href="{% url 'home' %}" class="llshop-brand">Lavender Lily</a>
+
+          <!-- Desktop Menu -->
+          <ul class="llshop-nav-links d-none d-lg-flex">
+            <li><a href="{% url 'shop' %}">Shop</a></li>
+            <li><a href="{% url 'about' %}">Our Story</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+            {% if user.is_authenticated %}
+            <li><a href="{% url 'profile' %}#ordersSection">My Orders</a></li>
+            {% endif %}
+            {% if user.is_staff %}
+            <li><a href="{% url 'admin_dashboard' %}" class="admin-link"><i class="fas fa-cog"></i> Admin</a></li>
+            {% endif %}
+          </ul>
+
+          <!-- Icons -->
+          <div class="llshop-nav-icons">
+            {% if user.is_authenticated %}
+            <a href="{% url 'profile' %}"><i class="fas fa-user"></i></a>
+            <a href="{% url 'logout' %}" style="text-decoration:none"><i class="fas fa-sign-out-alt"></i></a>
+            {% else %}
+            <a href="{% url 'signin' %}"><i class="fas fa-user"></i></a>
+            {% endif %}
+
+            <a href="{% url 'cart' %}">
+              <i class="fas fa-shopping-bag"></i>
+              {% if cart_count > 0 %}
+              <span class="llshop-cart-badge">{{ cart_count }}</span>
+              {% endif %}
+            </a>
+
+            <button class="llshop-mobile-toggle" onclick="toggleMobileMenu()">
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div class="llshop-mobile-menu" id="mobileMenu">
+        <a href="{% url 'shop' %}" onclick="closeMobileMenu()">Shop</a>
+        <a href="{% url 'about' %}" onclick="closeMobileMenu()">Our Story</a>
+        <a href="{% url 'contact' %}" onclick="closeMobileMenu()">Contact</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}#ordersSection" onclick="closeMobileMenu()">My Orders</a>
+        {% endif %}
+        {% if user.is_staff %}
+        <a href="{% url 'admin_dashboard' %}" onclick="closeMobileMenu()" class="admin-link"><i class="fas fa-cog"></i> Admin Panel</a>
+        {% endif %}
+      </div>
+    </nav>
+
+    {% if messages %}
+    <div class="container mt-4">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- 🌸 MAIN PAGE CONTENT -->
+    {% block content %} {% endblock %}
+
+    <!-- 🌸 FOOTER -->
+    <footer class="llshop-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-3 llshop-footer-section">
+            <h5>Lavender Lily</h5>
+            <p class="llshop-footer-description">
+              Timeless elegance inspired by nature. Sustainable fashion for the
+              thoughtful wardrobe.
+            </p>
+          </div>
+
+          <div class="col-md-2 llshop-footer-section">
+            <h5>Shop</h5>
+            <ul>
+              <li><a href="{% url 'shop' %}">Dresses</a></li>
+              <li><a href="{% url 'shop' %}">Tops & Blouses</a></li>
+              <li><a href="{% url 'shop' %}">Bottoms</a></li>
+              <li><a href="{% url 'size_chart' %}">Size Guide</a></li>
+            </ul>
+          </div>
+
+          <div class="col-md-3 llshop-footer-section">
+            <h5>Information</h5>
+            <ul>
+              <li><a href="{% url 'about' %}">Our Story</a></li>
+              <li><a href="{% url 'about' %}">About Us</a></li>
+              <li><a href="{% url 'contact' %}">Shipping & Returns</a></li>
+              <li><a href="{% url 'contact' %}">Contact Us</a></li>
+            </ul>
+          </div>
+
+          <div class="col-md-4 llshop-footer-section">
+            <h5>Stay in Bloom</h5>
+            <p class="llshop-footer-description">
+              Subscribe for new arrivals and exclusive offers.
+            </p>
+
+            <form class="llshop-newsletter-form" id="baseNewsletterForm" method="post" action="{% url 'newsletter_subscribe' %}">
+              {% csrf_token %}
+              <input
+                type="email"
+                name="email"
+                class="llshop-newsletter-input"
+                placeholder="Your email"
+                required
+              />
+              <button type="submit" class="llshop-newsletter-btn" id="baseNewsletterBtn">Join</button>
+            </form>
+
+            <div id="baseNewsletterMessage" class="mt-2" style="display: none;"></div>
+
+            <div class="llshop-social-icons">
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-facebook-f"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="llshop-footer-bottom">
+          <p>&copy; 2024 Lavender Lily. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap + Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Mobile Menu Toggle
+      function toggleMobileMenu() {
+        const mobileMenu = document.getElementById("mobileMenu");
+        mobileMenu.classList.toggle("active");
+      }
+
+      function closeMobileMenu() {
+        const mobileMenu = document.getElementById("mobileMenu");
+        mobileMenu.classList.remove("active");
+      }
+
+      // Base newsletter subscription with AJAX
+      const baseNewsletterForm = document.getElementById('baseNewsletterForm');
+      if (baseNewsletterForm) {
+        baseNewsletterForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+
+          const form = this;
+          const formData = new FormData(form);
+          const submitBtn = document.getElementById('baseNewsletterBtn');
+          const messageDiv = document.getElementById('baseNewsletterMessage');
+
+          // Disable button and show loading
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining...';
+
+          // Hide previous messages
+          if (messageDiv) messageDiv.style.display = 'none';
+
+          fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (messageDiv) {
+              messageDiv.style.display = 'block';
+              if (data.success) {
+                messageDiv.className = 'alert alert-success mt-2';
+                messageDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
+                form.reset(); // Clear the form
+              } else {
+                messageDiv.className = 'alert alert-warning mt-2';
+                messageDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + data.message;
+              }
+            }
+          })
+          .catch(error => {
+            if (messageDiv) {
+              messageDiv.style.display = 'block';
+              messageDiv.className = 'alert alert-danger mt-2';
+              messageDiv.innerHTML = '<i class="fas fa-times-circle"></i> Sorry, something went wrong. Please try again.';
+            }
+            console.error('Base newsletter subscription error:', error);
+          })
+          .finally(() => {
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Join';
+          });
+        });
+      }
+    </script>
+
+    <script src="{% static 'script.js' %}"></script>
+  </body>
+</html>

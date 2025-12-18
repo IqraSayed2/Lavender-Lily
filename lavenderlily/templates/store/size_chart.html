@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Size Chart{% endblock %}
+
+{% block content %}
+
+<section class="llsize-section">
+    <div class="container">
+        <div class="llsize-header">
+            <h1 class="llsize-title">Size Chart</h1>
+            <p class="llsize-subtitle">Find your perfect fit with our comprehensive size guide</p>
+        </div>
+
+        <div class="llsize-content">
+            <!-- Women's Size Chart -->
+            <div class="llsize-category">
+                <h2 class="llsize-category-title">Women's Clothing</h2>
+                <div class="llsize-table-container">
+                    <table class="llsize-table">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Bust (cm)</th>
+                                <th>Waist (cm)</th>
+                                <th>Hips (cm)</th>
+                                <th>UK Size</th>
+                                <th>US Size</th>
+                                <th>EU Size</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>XS</strong></td>
+                                <td>78-82</td>
+                                <td>60-64</td>
+                                <td>86-90</td>
+                                <td>6</td>
+                                <td>2</td>
+                                <td>34</td>
+                            </tr>
+                            <tr>
+                                <td><strong>S</strong></td>
+                                <td>82-86</td>
+                                <td>64-68</td>
+                                <td>90-94</td>
+                                <td>8</td>
+                                <td>4</td>
+                                <td>36</td>
+                            </tr>
+                            <tr>
+                                <td><strong>M</strong></td>
+                                <td>86-90</td>
+                                <td>68-72</td>
+                                <td>94-98</td>
+                                <td>10</td>
+                                <td>6</td>
+                                <td>38</td>
+                            </tr>
+                            <tr>
+                                <td><strong>L</strong></td>
+                                <td>90-94</td>
+                                <td>72-76</td>
+                                <td>98-102</td>
+                                <td>12</td>
+                                <td>8</td>
+                                <td>40</td>
+                            </tr>
+                            <tr>
+                                <td><strong>XL</strong></td>
+                                <td>94-98</td>
+                                <td>76-80</td>
+                                <td>102-106</td>
+                                <td>14</td>
+                                <td>10</td>
+                                <td>42</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Men's Size Chart -->
+            <div class="llsize-category">
+                <h2 class="llsize-category-title">Men's Clothing</h2>
+                <div class="llsize-table-container">
+                    <table class="llsize-table">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Chest (cm)</th>
+                                <th>Waist (cm)</th>
+                                <th>UK Size</th>
+                                <th>US Size</th>
+                                <th>EU Size</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>XS</strong></td>
+                                <td>86-90</td>
+                                <td>71-75</td>
+                                <td>34</td>
+                                <td>34</td>
+                                <td>44</td>
+                            </tr>
+                            <tr>
+                                <td><strong>S</strong></td>
+                                <td>90-94</td>
+                                <td>75-79</td>
+                                <td>36</td>
+                                <td>36</td>
+                                <td>46</td>
+                            </tr>
+                            <tr>
+                                <td><strong>M</strong></td>
+                                <td>94-98</td>
+                                <td>79-83</td>
+                                <td>38</td>
+                                <td>38</td>
+                                <td>48</td>
+                            </tr>
+                            <tr>
+                                <td><strong>L</strong></td>
+                                <td>98-102</td>
+                                <td>83-87</td>
+                                <td>40</td>
+                                <td>40</td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <td><strong>XL</strong></td>
+                                <td>102-106</td>
+                                <td>87-91</td>
+                                <td>42</td>
+                                <td>42</td>
+                                <td>52</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- How to Measure -->
+            <div class="llsize-guide">
+                <h3 class="llsize-guide-title">How to Measure</h3>
+                <div class="llsize-measurements">
+                    <div class="llsize-measurement">
+                        <h4>Bust</h4>
+                        <p>Measure around the fullest part of your bust, keeping the tape level.</p>
+                        <img src="{% static 'images/bust-measure.png' %}" alt="Bust measurement" onerror="this.style.display='none'">
+                    </div>
+                    <div class="llsize-measurement">
+                        <h4>Waist</h4>
+                        <p>Measure around your natural waistline, which is usually the narrowest part.</p>
+                        <img src="{% static 'images/waist-measure.png' %}" alt="Waist measurement" onerror="this.style.display='none'">
+                    </div>
+                    <div class="llsize-measurement">
+                        <h4>Hips</h4>
+                        <p>Measure around the fullest part of your hips, about 20cm below your waist.</p>
+                        <img src="{% static 'images/hips-measure.png' %}" alt="Hips measurement" onerror="this.style.display='none'">
+                    </div>
+                    <div class="llsize-measurement">
+                        <h4>Chest</h4>
+                        <p>Measure around the fullest part of your chest, just under your armpits.</p>
+                        <img src="{% static 'images/chest-measure.png' %}" alt="Chest measurement" onerror="this.style.display='none'">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Size Tips -->
+            <div class="llsize-tips">
+                <h3 class="llsize-tips-title">Size Tips</h3>
+                <ul class="llsize-tips-list">
+                    <li>Measurements are in centimeters (cm)</li>
+                    <li>If you're between sizes, we recommend sizing up</li>
+                    <li>Our sizes are based on UAE standards and may vary slightly by style</li>
+                    <li>For the most accurate fit, measure yourself and compare with our chart</li>
+                    <li>Still unsure? Contact our customer service for personalized advice</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+{% endblock %}

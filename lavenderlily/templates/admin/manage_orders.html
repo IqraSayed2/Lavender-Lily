@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Order{% endblock %}
+
+{% block content %}
+<section class="orders-management">
+  <div class="container">
+    <div class="row">
+      <!-- Header -->
+      <div class="col-12">
+        <div class="orders-header">
+          <div class="orders-header-content">
+            <h1><i class="fas fa-shopping-cart"></i> Order Management</h1>
+            <p>View and manage customer orders</p>
+          </div>
+          <div class="orders-header-actions">
+            <a href="{% url 'admin_dashboard' %}" class="orders-back-link">
+              <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders List -->
+    <div class="row">
+      <div class="col-12">
+        <div class="orders-list-card">
+          <div class="orders-list-header">
+            <h5>All Orders</h5>
+            <div class="orders-search-box">
+              <input type="text" class="orders-search-input" id="searchInput" placeholder="Search orders...">
+            </div>
+          </div>
+          <div class="orders-list-body">
+            <div class="orders-table-container">
+              <table class="orders-table">
+                <thead>
+                  <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="ordersTable">
+                  {% for order in orders %}
+                  <tr>
+                    <td>{{ order.order_number }}</td>
+                    <td>{{ order.user.get_full_name|default:order.user.username }}</td>
+                    <td>
+                      <span class="orders-badge orders-badge-{{ order.status|lower }}">{{ order.get_status_display }}</span>
+                    </td>
+                    <td>AED {{ order.total_amount }}</td>
+                    <td>{{ order.created_at|date:"M d, Y" }}</td>
+                    <td>
+                      <div class="orders-actions">
+                        <button type="button" class="orders-action-btn orders-action-view"
+                                onclick="viewOrder({{ order.pk }})">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button" class="orders-action-btn orders-action-edit"
+                                onclick="updateOrderStatus({{ order.pk }}, '{{ order.status }}')">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="6" class="orders-empty-cell">
+                      <div class="orders-empty-state">
+                        <i class="fas fa-shopping-cart orders-empty-icon"></i>
+                        <p class="orders-empty-text">No orders found.</p>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if orders.has_other_pages %}
+            <nav aria-label="Order pagination" class="orders-pagination">
+              <ul class="orders-pagination-list">
+                {% if orders.has_previous %}
+                <li class="orders-pagination-item">
+                  <a class="orders-pagination-link" href="?page={{ orders.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% for num in orders.paginator.page_range %}
+                {% if orders.number == num %}
+                <li class="orders-pagination-item orders-pagination-active">
+                  <a class="orders-pagination-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                <li class="orders-pagination-item">
+                  <a class="orders-pagination-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if orders.has_next %}
+                <li class="orders-pagination-item">
+                  <a class="orders-pagination-link" href="?page={{ orders.next_page_number }}">Next</a>
+                </li>
+                {% endif %}
+              </ul>
+            </nav>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header orders-modal-header">
+        <h5 class="modal-title orders-modal-title">Order Details</h5>
+        <button type="button" class="orders-modal-close" data-bs-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body orders-modal-body" id="orderDetails">
+        <!-- Order details will be loaded here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header orders-modal-header">
+        <h5 class="modal-title orders-modal-title">Update Order Status</h5>
+        <button type="button" class="orders-modal-close" data-bs-dismiss="modal">&times;</button>
+      </div>
+      <form id="statusForm">
+        <div class="modal-body orders-modal-body">
+          <input type="hidden" id="orderId" name="order_id">
+          <div class="orders-form-group">
+            <label for="orderStatus" class="orders-form-label">Status</label>
+            <select class="orders-form-select" id="orderStatus" name="status" required>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer orders-modal-footer">
+          <button type="button" class="orders-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="lavender-btn-primary">Update Status</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function viewOrder(orderId) {
+  fetch(`/admin/orders/${orderId}/`)
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('orderDetails').innerHTML = data.html;
+      new bootstrap.Modal(document.getElementById('orderModal')).show();
+    })
+    .catch(error => {
+      alert('Error loading order details');
+    });
+}
+
+function updateOrderStatus(orderId, currentStatus) {
+  document.getElementById('orderId').value = orderId;
+  document.getElementById('orderStatus').value = currentStatus;
+  new bootstrap.Modal(document.getElementById('statusModal')).show();
+}
+
+// Handle status form
+document.getElementById('statusForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  const orderId = document.getElementById('orderId').value;
+
+  fetch(`/dashboard/manage/orders/${orderId}/status/`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  }).then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Close modal and reload page
+        bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
+        location.reload();
+      } else {
+        alert('Error: ' + data.message);
+      }
+    }).catch(error => {
+      alert('Error updating order status');
+      console.error('Error:', error);
+    });
+});
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+  const searchTerm = this.value.toLowerCase();
+  const rows = document.querySelectorAll('#ordersTable tr');
+
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(searchTerm) ? '' : 'none';
+  });
+});
+
+// Add focus effects to form elements
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.orders-search-input, .orders-form-select').forEach(element => {
+    element.addEventListener('focus', function() {
+      this.style.borderColor = '#8b7ba8';
+      this.style.boxShadow = '0 0 0 2px rgba(139, 123, 168, 0.1)';
+    });
+
+    element.addEventListener('blur', function() {
+      this.style.borderColor = '#e0e0e0';
+      this.style.boxShadow = 'none';
+    });
+  });
+});
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,533 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lavender Lily - Ethereal Elegance</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="llshop-navbar">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <!-- Brand -->
+          <a href="{% url 'home' %}" class="llshop-brand">Lavender Lily</a>
+
+          <!-- Desktop Menu -->
+          <ul class="llshop-nav-links d-none d-lg-flex">
+            <li><a href="{% url 'shop' %}">Shop</a></li>
+            <li><a href="{% url 'about' %}">Our Story</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+            {% if user.is_authenticated %}
+            <li><a href="{% url 'profile' %}#ordersSection">My Orders</a></li>
+            {% endif %} {% if user.is_staff %}
+            <li>
+              <a href="{% url 'admin_dashboard' %}" class="admin-link"
+                ><i class="fas fa-cog"></i> Admin</a
+              >
+            </li>
+            {% endif %}
+          </ul>
+
+          <!-- Icons -->
+          <div class="llshop-nav-icons">
+            {% if user.is_authenticated %}
+            <a href="{% url 'profile' %}"><i class="fas fa-user"></i></a>
+            <a href="{% url 'logout' %}" style="text-decoration: none"
+              ><i class="fas fa-sign-out-alt"></i
+            ></a>
+            {% else %}
+            <a href="{% url 'signin' %}"><i class="fas fa-user"></i></a>
+            {% endif %}
+
+            <a href="{% url 'cart' %}">
+              <i class="fas fa-shopping-bag"></i>
+              {% if cart_count > 0 %}
+              <span class="llshop-cart-badge">{{ cart_count }}</span>
+              {% endif %}
+            </a>
+
+            <button class="llshop-mobile-toggle" onclick="toggleMobileMenu()">
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div class="llshop-mobile-menu" id="mobileMenu">
+        <a href="{% url 'shop' %}" onclick="closeMobileMenu()">Shop</a>
+        <a href="{% url 'about' %}" onclick="closeMobileMenu()">Our Story</a>
+        <a href="{% url 'contact' %}" onclick="closeMobileMenu()">Contact</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}#ordersSection" onclick="closeMobileMenu()">My Orders</a>
+        {% endif %}
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="lavender-hero">
+      <img
+        src="{% if homepage.hero_background %}{{ homepage.hero_background.url }}{% else %}https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=1920&h=1080&fit=crop{% endif %}"
+        alt="Hero Background"
+        class="lavender-hero-bg"
+      />
+      <div class="container">
+        <div class="lavender-hero-content">
+          <div class="lavender-season-tag">
+            {{ homepage.season_tag|default:"SPRING / SUMMER 2024" }}
+          </div>
+          <h1 class="lavender-hero-title">
+            {{ homepage.hero_title|default:"Ethereal" }}
+          </h1>
+          <h2 class="lavender-hero-subtitle">
+            {{ homepage.hero_subtitle|default:"Elegance" }}
+          </h2>
+          <div class="lavender-hero-buttons">
+            <a href="{% url 'shop' %}" class="lavender-btn-primary"
+              >{{ homepage.explore_button_text|default:"EXPLORE COLLECTION"}}</a>
+            {% if homepage.watch_button_url %}
+            <a href="{{ homepage.watch_button_url }}" target="_blank" class="lavender-btn-secondary">
+              <i class="fas fa-play"></i>
+              {{ homepage.watch_button_text|default:"WATCH CAMPAIGN" }}
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Announcement Bar -->
+    <div class="lavender-announcement">
+      <span class="lavender-announcement-text"
+        >{{ homepage.announcement_1|default:"Complimentary Shipping on Orders Over AED 200" }}</span>
+      <span class="lavender-announcement-text">•</span>
+      <span class="lavender-announcement-text"
+        >{{ homepage.announcement_2|default:"Sustainably Sourced Materials"}}</span>
+      <span class="lavender-announcement-text">•</span>
+      <span class="lavender-announcement-text"
+        >{{ homepage.announcement_3|default:"Handcrafted in Provence" }}</span>
+    </div>
+
+    <!-- New Arrival - Product Carousel -->
+    <section class="lavender-edit-section">
+      <div class="container">
+        <div class="lavender-section-header">
+          <h2 class="lavender-section-title">New Arrivals</h2>
+          <a href="{% url 'shop' %}" class="lavender-view-all"
+            >VIEW ALL PIECES</a>
+        </div>
+
+        <!-- Featured Grid -->
+        <div class="llhome-featured-grid">
+          <div class="llhome-featured-card llhome-featured-large">
+            <img
+              src="{% if homepage.featured_image_1 %}{{ homepage.featured_image_1.url }}{% else %}https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=600&q=80{% endif %}"
+              alt="Featured Style"
+              class="llhome-featured-image"
+            />
+            <div class="llhome-featured-overlay">
+              <div class="llhome-featured-label">
+                {{ homepage.featured_label_1|default:"Style Inspiration" }}
+              </div>
+            </div>
+          </div>
+          <div class="llhome-featured-card" style="height: 600px">
+            <img
+              src="{% if homepage.featured_image_2 %}{{ homepage.featured_image_2.url }}{% else %}https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80{% endif %}"
+              alt="Fine Details"
+              class="llhome-featured-image"
+            />
+            <div class="llhome-featured-overlay">
+              <div class="llhome-featured-label">
+                {{ homepage.featured_label_2|default:"Fine Details" }}
+              </div>
+            </div>
+          </div>
+          <div class="llhome-featured-card" style="height: 360px">
+            <img
+              src="{% if homepage.featured_image_3 %}{{ homepage.featured_image_3.url }}{% else %}https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80{% endif %}"
+              alt="New Collection"
+              class="llhome-featured-image"
+            />
+            <div class="llhome-featured-overlay">
+              <div class="llhome-featured-label">
+                {{ homepage.featured_label_3|default:"New Collection" }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lavender-product-carousel position-relative">
+          <button
+            class="lavender-carousel-nav lavender-prev"
+            onclick="slideProducts(-1)"
+          >
+            <i class="fas fa-chevron-left"></i>
+          </button>
+
+          <div class="lavender-carousel-viewport">
+            <div class="lavender-carousel-wrapper" id="carouselWrapper">
+              {% for product in products %}
+              <a
+                href="{% url 'product_detail' product.pk %}"
+                class="lavender-product-link"
+              >
+                <div class="lavender-product-card">
+                  <div class="lavender-product-image">
+                    <img
+                      src="{{ product.image_main.url }}"
+                      alt="{{ product.name }}"
+                    />
+                    <div class="lavender-product-overlay">
+                      {% if forloop.counter == 1 %}BESTSELLER 
+                      {% elif forloop.counter <= 3 %}NEW 
+                      {% elif forloop.counter == 4 %}TRENDING 
+                      {% else %}FEATURED
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <div class="lavender-product-info">
+                    <div class="lavender-product-category">
+                      {{ product.category|upper }}
+                    </div>
+                    <div class="lavender-product-name">{{ product.name }}</div>
+                    <div class="lavender-product-price">
+                      AED {{ product.price }}
+                    </div>
+                  </div>
+                </div>
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+
+          <button
+            class="lavender-carousel-nav lavender-next"
+            onclick="slideProducts(1)"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="llhome-newsletter-section">
+      <div class="container">
+        <h2 class="llhome-newsletter-title">
+          {{ homepage.newsletter_title|default:"Join the Inner Circle" }}
+        </h2>
+        <p class="llhome-newsletter-subtitle">
+          {{ homepage.newsletter_subtitle|default:"Subscribe to receive early access to new collections, exclusive events, and sustainable fashion news." }}
+        </p>
+
+        <form
+          class="llhome-newsletter-form"
+          id="newsletterForm"
+          method="post"
+          action="{% url 'newsletter_subscribe' %}"
+        >
+          {% csrf_token %}
+          <input
+            type="email"
+            name="email"
+            class="llhome-newsletter-input"
+            placeholder="Email Address"
+            required
+          />
+          <button
+            type="submit"
+            class="llhome-newsletter-btn"
+            id="newsletterBtn"
+          >
+            {{ homepage.newsletter_button_text|default:"Subscribe" }}
+          </button>
+        </form>
+
+        <div id="newsletterMessage" class="mt-3" style="display: none"></div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="llshop-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-3 llshop-footer-section">
+            <h5>Lavender Lily</h5>
+            <p class="llshop-footer-description">
+              Timeless elegance inspired by nature. Sustainable fashion for the thoughtful wardrobe.
+            </p>
+          </div>
+
+          <div class="col-md-2 llshop-footer-section">
+            <h5>Shop</h5>
+            <ul>
+              <li><a href="{% url 'shop' %}">Dresses</a></li>
+              <li><a href="{% url 'shop' %}">Tops & Blouses</a></li>
+              <li><a href="{% url 'shop' %}">Bottoms</a></li>
+              <li><a href="{% url 'size_chart' %}">Size Guide</a></li>
+            </ul>
+          </div>
+
+          <div class="col-md-3 llshop-footer-section">
+            <h5>Information</h5>
+            <ul>
+              <li><a href="{% url 'about' %}">Our Story</a></li>
+              <li><a href="{% url 'about' %}">About Us</a></li>
+              <li><a href="{% url 'contact' %}">Shipping & Returns</a></li>
+              <li><a href="{% url 'contact' %}">Contact Us</a></li>
+            </ul>
+          </div>
+
+          <div class="col-md-4 llshop-footer-section">
+            <h5>
+              {{ homepage.footer_newsletter_title|default:"Stay in Bloom" }}
+            </h5>
+            <p class="llshop-footer-description">
+              {{ homepage.footer_newsletter_description|default:"Subscribe for new arrivals and exclusive offers." }}
+            </p>
+            <form
+              class="llshop-newsletter-form"
+              id="footerNewsletterForm"
+              method="post"
+              action="{% url 'newsletter_subscribe' %}"
+            >
+              {% csrf_token %}
+              <input
+                type="email"
+                name="email"
+                class="llshop-newsletter-input"
+                placeholder="Your email"
+                required
+              />
+              <button
+                type="submit"
+                class="llshop-newsletter-btn"
+                id="footerNewsletterBtn"
+              >
+                {{ homepage.footer_newsletter_button|default:"Join" }}
+              </button>
+            </form>
+
+            <div
+              id="footerNewsletterMessage"
+              class="mt-2"
+              style="display: none"
+            ></div>
+
+            <div class="llshop-social-icons">
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-facebook-f"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="llshop-footer-bottom">
+          <p>
+            &copy; 2024 Lavender Lily. All rights reserved. | Privacy Policy | Terms of Service
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="{% static 'script.js' %}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Mobile Menu Toggle
+      function toggleMobileMenu() {
+        const mobileMenu = document.getElementById("mobileMenu");
+        mobileMenu.classList.toggle("active");
+      }
+
+      // Close Mobile Menu
+      function closeMobileMenu() {
+        const mobileMenu = document.getElementById("mobileMenu");
+        mobileMenu.classList.remove("active");
+      }
+
+      // Close menu when clicking outside
+      document.addEventListener("click", function (event) {
+        const mobileMenu = document.getElementById("mobileMenu");
+        const toggle = document.querySelector(".llshop-mobile-toggle");
+
+        if (
+          mobileMenu &&
+          toggle &&
+          !mobileMenu.contains(event.target) &&
+          !toggle.contains(event.target)
+        ) {
+          mobileMenu.classList.remove("active");
+        }
+      });
+
+      let currentSlide = 0;
+      const wrapper = document.getElementById("carouselWrapper");
+      const cards = document.querySelectorAll(".lavender-product-card");
+      let cardsPerView = getCardsPerView();
+
+      function getCardsPerView() {
+        if (window.innerWidth >= 1200) return 4;
+        if (window.innerWidth >= 992) return 3;
+        if (window.innerWidth >= 768) return 2;
+        return 1;
+      }
+
+      function slideProducts(direction) {
+        cardsPerView = getCardsPerView();
+        const maxSlide = cards.length - cardsPerView;
+
+        currentSlide += direction;
+
+        if (currentSlide < 0) {
+          currentSlide = 0;
+        } else if (currentSlide > maxSlide) {
+          currentSlide = maxSlide;
+        }
+
+        const cardWidth = cards[0].offsetWidth;
+        const gap = 30;
+        const offset = -(currentSlide * (cardWidth + gap));
+
+        wrapper.style.transform = `translateX(${offset}px)`;
+      }
+
+      // Handle window resize
+      window.addEventListener("resize", () => {
+        cardsPerView = getCardsPerView();
+        slideProducts(0); // Recalculate position
+      });
+
+      // Newsletter subscription with AJAX
+      document
+        .getElementById("newsletterForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const form = this;
+          const formData = new FormData(form);
+          const submitBtn = document.getElementById("newsletterBtn");
+          const messageDiv = document.getElementById("newsletterMessage");
+
+          // Disable button and show loading
+          submitBtn.disabled = true;
+          submitBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Subscribing...';
+
+          // Hide previous messages
+          messageDiv.style.display = "none";
+
+          fetch(form.action, {
+            method: "POST",
+            body: formData,
+            headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "X-CSRFToken": document.querySelector(
+                "[name=csrfmiddlewaretoken]"
+              ).value,
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              messageDiv.style.display = "block";
+              if (data.success) {
+                messageDiv.className = "alert alert-success mt-3";
+                messageDiv.innerHTML =
+                  '<i class="fas fa-check-circle"></i> ' + data.message;
+                form.reset(); // Clear the form
+              } else {
+                messageDiv.className = "alert alert-warning mt-3";
+                messageDiv.innerHTML =
+                  '<i class="fas fa-exclamation-triangle"></i> ' + data.message;
+              }
+            })
+            .catch((error) => {
+              messageDiv.style.display = "block";
+              messageDiv.className = "alert alert-danger mt-3";
+              messageDiv.innerHTML =
+                '<i class="fas fa-times-circle"></i> Sorry, something went wrong. Please try again.';
+              console.error("Newsletter subscription error:", error);
+            })
+            .finally(() => {
+              // Re-enable button
+              submitBtn.disabled = false;
+              submitBtn.innerHTML =
+                '{{ homepage.newsletter_button_text|default:"Subscribe" }}';
+            });
+        });
+
+      // Footer newsletter subscription with AJAX
+      document
+        .getElementById("footerNewsletterForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const form = this;
+          const formData = new FormData(form);
+          const submitBtn = document.getElementById("footerNewsletterBtn");
+          const messageDiv = document.getElementById("footerNewsletterMessage");
+
+          // Disable button and show loading
+          submitBtn.disabled = true;
+          submitBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Joining...';
+
+          // Hide previous messages
+          messageDiv.style.display = "none";
+
+          fetch(form.action, {
+            method: "POST",
+            body: formData,
+            headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "X-CSRFToken": document.querySelector(
+                "[name=csrfmiddlewaretoken]"
+              ).value,
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              messageDiv.style.display = "block";
+              if (data.success) {
+                messageDiv.className = "alert alert-success mt-2";
+                messageDiv.innerHTML =
+                  '<i class="fas fa-check-circle"></i> ' + data.message;
+                form.reset(); // Clear the form
+              } else {
+                messageDiv.className = "alert alert-warning mt-2";
+                messageDiv.innerHTML =
+                  '<i class="fas fa-exclamation-triangle"></i> ' + data.message;
+              }
+            })
+            .catch((error) => {
+              messageDiv.style.display = "block";
+              messageDiv.className = "alert alert-danger mt-2";
+              messageDiv.innerHTML =
+                '<i class="fas fa-times-circle"></i> Sorry, something went wrong. Please try again.';
+              console.error("Footer newsletter subscription error:", error);
+            })
+            .finally(() => {
+              // Re-enable button
+              submitBtn.disabled = false;
+              submitBtn.innerHTML =
+                '{{ homepage.footer_newsletter_button|default:"Join" }}';
+            });
+        });
+    </script>
+  </body>
+</html>

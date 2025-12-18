@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+
+    <section class="llproduct-section">
+        <div class="llproduct-container">
+            <div class="row">
+                <!-- Image Gallery -->
+                <div class="col-lg-6">
+                    <div class="llproduct-gallery">
+                        <div class="llproduct-main-image-container">
+                            <img src="{{ images.0 }}" id="mainImage" class="llproduct-main-image">
+                        </div>
+
+                        <div class="llproduct-thumbnail-container">
+                            {% for img in images %}
+                            <div class="llproduct-thumbnail {% if forloop.first %}active{% endif %}" onclick="changeImage(this,'{{ img }}')">
+                                <img src="{{ img }}" alt="Thumb {{ forloop.counter }}">
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Info -->
+                <div class="col-lg-6">
+                    <div class="llproduct-info">
+                        <div class="llproduct-category">{{ product.category }}</div>
+                        <h1 class="llproduct-title">{{ product.name }}</h1>
+                        <div class="llproduct-price">AED {{ product.price }}</div>
+
+                        <div class="llproduct-rating">
+                            <div class="llproduct-stars">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                            <span class="llproduct-review-count">({{ reviews.count }})</span>
+                        </div>
+
+                        <p class="llproduct-description">{{ product.description }}</p>
+
+                        <div class="llproduct-size-section">
+                            <div class="llproduct-size-header">
+                                <span class="llproduct-size-label">Select Size</span>
+                                <a href="{% url 'size_chart' %}" class="llproduct-size-guide">Size Guide</a>
+                            </div>
+                            <div class="llproduct-size-options">
+                                {% for size in all_sizes %}
+                                <button class="llproduct-size-btn{% if size in available_sizes %} active{% else %} disabled{% endif %}" onclick="{% if size in available_sizes %}selectSize(this){% endif %}" {% if size not in available_sizes %}disabled style="text-decoration: line-through; opacity: 0.5;"{% endif %}>
+                                    {{ size.name }}
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="llproduct-color-section">
+                            <span class="llproduct-color-label">Color</span>
+                            <div class="llproduct-color-options">
+                                <button class="llproduct-color-btn llproduct-color-lavender active" onclick="selectColor(this)"></button>
+                            </div>
+                        </div>
+
+                        <div class="llproduct-quantity-section">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="llproduct-quantity-control">
+                                    <button type="button" class="llproduct-quantity-btn" onclick="decreaseQuantity()">−</button>
+                                    <input type="number" id="quantity" class="llproduct-quantity-input" value="1" min="1">
+                                    <button type="button" class="llproduct-quantity-btn" onclick="increaseQuantity()">+</button>
+                                </div>
+
+                                <form action="{% url 'toggle_wishlist' product.id %}" method="post" style="display:inline;">
+                                  {% csrf_token %}
+                                  <button class="llshop-wishlist-btn{% if product.id|stringformat:'s' in request.session.wishlist %} active{% endif %}" type="submit">
+                                    {% if product.id|stringformat:'s' in request.session.wishlist %}
+                                      <i class="fas fa-heart"></i>
+                                    {% else %}
+                                      <i class="far fa-heart"></i>
+                                    {% endif %}
+                                  </button>
+                                </form>
+                            </div>
+
+                            <form action="{% url 'add_to_cart' product.id %}" method="post" class="d-flex gap-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="quantity" id="hidden-quantity" value="1">
+                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                <button type="submit" class="llshop-add-to-cart-btn">Add to Cart</button>
+                                <button type="submit" name="buy_now" value="1" class="llshop-buy-now-btn">Buy Now</button>
+                            </form>
+                        </div>
+
+                        <div class="llproduct-details">
+                            {% if product.sku %}
+                            <div class="llproduct-detail-item">
+                                <span class="llproduct-detail-label">SKU:</span>
+                                <span class="llproduct-detail-value">{{ product.sku }}</span>
+                            </div>
+                            {% endif %}
+                            {% if product.material %}
+                            <div class="llproduct-detail-item">
+                                <span class="llproduct-detail-label">Material:</span>
+                                <span class="llproduct-detail-value">{{ product.material }}</span>
+                            </div>
+                            {% endif %}
+                            {% if product.care %}
+                            <div class="llproduct-detail-item">
+                                <span class="llproduct-detail-label">Care:</span>
+                                <span class="llproduct-detail-value">{{ product.care }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="row mt-5">
+                <div class="col-lg-8">
+                    <h3 class="llproduct-reviews-title">Reviews ({{ reviews.count }})</h3>
+
+                    {% for r in reviews %}
+                    <div class="llproduct-review-card">
+                        <div class="llproduct-review-header">
+                            <div class="llproduct-review-author">{{ r.name }}</div>
+                            <div class="llproduct-review-date">{{ r.created_at|date:"M d, Y H:i" }}</div>
+                        </div>
+                        <div class="llproduct-review-rating">
+                            <div class="llproduct-review-stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= r.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="llproduct-review-comment">{{ r.comment }}</div>
+                    </div>
+                    {% empty %}
+                    <div class="llproduct-no-reviews">
+                        No reviews yet - be the first to review.
+                    </div>
+                    {% endfor %}
+
+                    <!-- Review Form -->
+                    <div class="llproduct-review-form-card">
+                        <h5 class="llproduct-review-form-title">Write a review</h5>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="review_submit" value="1">
+                            <div class="llproduct-review-form-group">
+                                <label class="llproduct-review-form-label">Your name</label>
+                                <input type="text" name="name" class="llproduct-review-form-input" value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% endif %}">
+                            </div>
+
+                            <div class="llproduct-review-form-group">
+                                <label class="llproduct-review-form-label">Rating</label>
+                                <select name="rating" class="llproduct-review-form-select">
+                                    <option value="5">5 - Excellent</option>
+                                    <option value="4">4 - Very good</option>
+                                    <option value="3">3 - Good</option>
+                                    <option value="2">2 - Poor</option>
+                                    <option value="1">1 - Terrible</option>
+                                </select>
+                            </div>
+
+                            <div class="llproduct-review-form-group">
+                                <label class="llproduct-review-form-label">Comment</label>
+                                <textarea name="comment" class="llproduct-review-form-textarea" rows="4" required></textarea>
+                            </div>
+
+                            <button class="llproduct-review-submit-btn" type="submit">Submit review</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function changeImage(thumbnail, img) {
+            document.getElementById('mainImage').src = img;
+            document.querySelectorAll('.llproduct-thumbnail').forEach(el => el.classList.remove('active'));
+            thumbnail.classList.add('active');
+        }
+
+        function selectSize(button) {
+            document.querySelectorAll('.llproduct-size-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+        }
+
+        function selectColor(button) {
+            document.querySelectorAll('.llproduct-color-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+        }
+
+        function increaseQuantity(){
+            const el = document.getElementById('quantity');
+            const hiddenEl = document.getElementById('hidden-quantity');
+            el.value = parseInt(el.value) + 1;
+            hiddenEl.value = el.value;
+        }
+        function decreaseQuantity(){
+            const el = document.getElementById('quantity');
+            const hiddenEl = document.getElementById('hidden-quantity');
+            if (parseInt(el.value) > 1) {
+                el.value = parseInt(el.value) - 1;
+                hiddenEl.value = el.value;
+            }
+        }
+
+        // Sync quantity input with hidden field
+        document.getElementById('quantity').addEventListener('input', function() {
+            document.getElementById('hidden-quantity').value = this.value;
+        });
+    </script>
+
+{% endblock %}

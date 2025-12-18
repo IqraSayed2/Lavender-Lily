@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% load static %}
+{% load query_params %}
+
+{% block title %}Shop Collection{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="llshop-page-header">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div>
+            <h1 class="llshop-page-title">Shop Collection</h1>
+            <p class="llshop-results-count">Showing {{ paginator.count }} results</p>
+          </div>
+
+          <div>
+            <form method="get" class="d-flex gap-2">
+              <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search..." class="llshop-search-input" style="min-width:220px">
+              <select name="sort" class="llshop-sort-dropdown" onchange="this.form.submit()">
+                <option value="">Sort by: Featured</option>
+                <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Newest First</option>
+              </select>
+              <button class="llshop-apply-btn" type="submit">Apply</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="llshop-main-container">
+      <div class="container">
+        <button class="llshop-mobile-filter-btn" onclick="toggleFilters()">
+          <i class="fas fa-filter"></i> Filters
+        </button>
+
+        <div class="row">
+          <!-- Sidebar Filters -->
+          <div class="col-lg-3" id="filterSidebar">
+            <div class="llshop-sidebar">
+              <form id="filterForm" method="get">
+                <div class="llshop-filter-section">
+                  <h3 class="llshop-filter-title">Categories</h3>
+                  <ul class="llshop-category-list">
+                    {% for cat in categories %}
+                    <li class="llshop-category-item">
+                      <div class="llshop-category-checkbox">
+                        <input type="checkbox" name="category" value="{{ cat }}" id="cat_{{ forloop.counter }}" {% if cat in selected_categories %}checked{% endif %} onchange="toggleCategory('{{ cat }}', this)"/>
+                        <label for="cat_{{ forloop.counter }}">{{ cat }}</label>
+                      </div>
+                    </li>
+                    {% endfor %}
+                    <li class="llshop-category-item">
+                      <div class="llshop-category-checkbox">
+                        <input type="checkbox" name="category" value="" id="cat_all" {% if not selected_categories or "" in selected_categories %}checked{% endif %} onchange="toggleCategory('', this)"/>
+                        <label for="cat_all">All</label>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="llshop-filter-section">
+                  <h3 class="llshop-filter-title">Price Range</h3>
+                  <div class="llshop-price-range">
+                    <input
+                      type="range"
+                      min="0"
+                      max="10000"
+                      value="{{ request.GET.max_price|default:10000 }}"
+                      class="llshop-price-slider"
+                      id="priceRange"
+                      name="max_price"
+                      onchange="this.form.submit()"
+                    />
+                    <div class="llshop-price-values">
+                      <span>AED 0</span>
+                      <span id="maxPrice">AED {{ request.GET.max_price|default:10000 }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="llshop-filter-section">
+                  <h3 class="llshop-filter-title">Colors</h3>
+                  <input type="hidden" name="color" id="colorInput" value="{{ request.GET.color }}">
+                  <div class="llshop-color-options">
+                    {% for c in colors %}
+                      <div
+                        class="llshop-color-circle llshop-color-{{ c|lower }}{% if request.GET.color == c %} selected{% endif %}"
+                        onclick="toggleColor('{{ c }}', this)"
+                        data-color="{{ c }}"
+                      ></div>
+                    {% endfor %}
+                    <div
+                      class="llshop-color-circle llshop-color-all{% if not request.GET.color %} selected{% endif %}"
+                      onclick="toggleColor('', this)"
+                      data-color=""
+                    ></div>
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <button class="llshop-apply-filters-btn" type="submit">Apply Filters</button>
+                  <a class="llshop-reset-btn" href="{% url 'shop' %}">Reset</a>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Product Grid -->
+          <div class="col-lg-9">
+            <div class="llshop-product-grid">
+              {% for product in products %}
+              <div class="llshop-product-card">
+                <div class="llshop-product-image-wrapper">
+                  <img src="{{ product.image_main.url }}" alt="{{ product.name }}" class="llshop-product-image" />
+                  <a href="{{ product.get_absolute_url }}" class="llshop-view-details-btn">View Details</a>
+                </div>
+
+                <div class="llshop-product-info">
+                  <div class="llshop-product-category">{{ product.category }}</div>
+                  <h3 class="llshop-product-name">{{ product.name }}</h3>
+                  <div class="llshop-product-price">AED {{ product.price }}</div>
+
+                  <div class="mt-2 d-flex gap-2">
+                    <form action="{% url 'add_to_cart' product.id %}" method="post" style="display:inline; flex: 1;">
+                      {% csrf_token %}
+                      <input type="hidden" name="quantity" value="1">
+                      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                      <button class="llshop-add-to-cart-btn" type="submit">Add to Cart</button>
+                    </form>
+
+                    <form action="{% url 'toggle_wishlist' product.id %}" method="post" style="display:inline;">
+                      {% csrf_token %}
+                      <button class="llshop-wishlist-btn{% if product.id|stringformat:'s' in request.session.wishlist %} active{% endif %}" type="submit">
+                        {% if product.id|stringformat:'s' in request.session.wishlist %}
+                          <i class="fas fa-heart"></i>
+                        {% else %}
+                          <i class="far fa-heart"></i>
+                        {% endif %}
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              {% empty %}
+                <p>No products found.</p>
+              {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation" class="mt-4">
+              <ul class="llshop-pagination">
+                {% if page_obj.has_previous %}
+                  <li class="page-item">
+                    <a class="page-link" href="?{% query_params page=page_obj.previous_page_number %}" aria-label="Previous">&laquo;</a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                {% endif %}
+
+                {% for p in page_obj.paginator.page_range %}
+                  {% if page_obj.number == p %}
+                    <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                  {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+                    <li class="page-item"><a class="page-link" href="?{% query_params page=p %}">{{ p }}</a></li>
+                  {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                  <li class="page-item">
+                    <a class="page-link" href="?{% query_params page=page_obj.next_page_number %}" aria-label="Next">&raquo;</a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                {% endif %}
+              </ul>
+            </nav>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+
+    <script>
+      function toggleColor(color, element) {
+        // Remove selected class from all color circles
+        document.querySelectorAll('.llshop-color-circle').forEach(circle => {
+          circle.classList.remove('selected');
+        });
+        // Add selected to clicked
+        element.classList.add('selected');
+        // Set hidden input
+        document.getElementById('colorInput').value = color;
+        // Submit form
+        document.getElementById('filterForm').submit();
+      }
+
+      function toggleCategory(value, element) {
+        const checkboxes = document.querySelectorAll('input[name="category"]');
+        if (value === '') {
+          // If "All" is checked, uncheck others
+          checkboxes.forEach(cb => {
+            if (cb.value !== '') {
+              cb.checked = false;
+            }
+          });
+        } else {
+          // If a specific category is checked, uncheck "All"
+          document.getElementById('cat_all').checked = false;
+        }
+        // Submit form
+        document.getElementById('filterForm').submit();
+      }
+
+      // Update price display on slider change
+      document.getElementById('priceRange').addEventListener('input', function() {
+        document.getElementById('maxPrice').textContent = 'AED ' + this.value;
+      });
+
+      // Mobile filter toggle
+      function toggleFilters() {
+        const sidebar = document.getElementById('filterSidebar');
+        sidebar.classList.toggle('show');
+      }
+    </script>
+
+{% endblock %}

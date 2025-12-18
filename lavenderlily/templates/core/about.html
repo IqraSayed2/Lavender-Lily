@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Our Story{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="llabout-hero">
+  <h1 class="llabout-hero-title">{{ about.hero_title }}</h1>
+</section>
+
+<!-- Rooted in Nature -->
+<section class="llabout-content-section">
+  <div class="container">
+    <h2 class="llabout-section-title">{{ about.section_title }}</h2>
+    <p class="llabout-section-text">
+      {{ about.section_text }}
+    </p>
+  </div>
+</section>
+
+<!-- Feature Section -->
+<section class="llabout-feature-section">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-4 mb-lg-0">
+        <div class="llabout-feature-card">
+          <img
+            src="{{ about.feature_image.url }}"
+            class="llabout-feature-image"
+            alt="Feature Image"
+          />
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="llabout-feature-content">
+          <h3 class="llabout-feature-title">{{ about.feature_title }}</h3>
+          <p class="llabout-feature-text">{{ about.feature_text_1 }}</p>
+          <p class="llabout-feature-text">{{ about.feature_text_2 }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Promise Section -->
+<section class="llabout-promise-section">
+  <div class="container">
+    <h2 class="llabout-promise-title">{{ about.promise_title }}</h2>
+    <p class="llabout-promise-text">
+      {{ about.promise_text }}
+    </p>
+  </div>
+</section>
+
+{% endblock %}

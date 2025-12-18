@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Categories{% endblock %}
+
+{% block content %}
+<section class="add-product-main">
+  <div class="container">
+    <div class="row">
+      <!-- Header -->
+      <div class="col-12">
+        <div class="add-product-header">
+          <div class="add-product-header-content">
+            <h1><i class="fas fa-tags"></i> Category Management</h1>
+            <p>Manage product categories</p>
+          </div>
+          <div class="add-product-header-actions">
+            <a href="{% url 'manage_products' %}" class="add-product-btn-primary">
+              <i class="fas fa-arrow-left"></i> Back to Products
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Add Category Form -->
+      <div class="col-md-4">
+        <div class="add-product-card">
+          <div class="add-product-card-header">
+            <h5>Add New Category</h5>
+          </div>
+          <div class="add-product-card-body">
+            <form method="POST">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="add">
+
+              <div class="mb-4">
+                <label for="name" class="form-label">Category Name *</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+              </div>
+
+              <div class="mb-4">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+              </div>
+
+              <button type="submit" class="add-product-btn-primary">
+                <i class="fas fa-plus"></i> Add Category
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories List -->
+      <div class="col-md-8">
+        <div class="add-product-card">
+          <div class="add-product-card-header">
+            <h5>All Categories ({{ categories|length }})</h5>
+          </div>
+          <div class="add-product-card-body">
+            {% if categories %}
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Products</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for category in categories %}
+                  <tr>
+                    <td>
+                      <strong>{{ category.name }}</strong>
+                    </td>
+                    <td>
+                      {% if category.description %}
+                        {{ category.description|truncatechars:50 }}
+                      {% else %}
+                        <span class="text-muted">-</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <span class="badge bg-primary">{{ category.product_set.count }}</span>
+                    </td>
+                    <td>{{ category.created_at|date:"M d, Y" }}</td>
+                    <td>
+                      <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                onclick="editCategory({{ category.pk }}, '{{ category.name }}', '{{ category.description|escapejs }}')">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        {% if category.product_set.count == 0 %}
+                        <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this category?')">
+                          {% csrf_token %}
+                          <input type="hidden" name="action" value="delete">
+                          <input type="hidden" name="category_id" value="{{ category.pk }}">
+                          <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </form>
+                        {% else %}
+                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Cannot delete category with products">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+              <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+              <h4>No categories found</h4>
+              <p class="text-muted">Start by adding your first category.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Category Modal -->
+    <div class="modal fade" id="editCategoryModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Category</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="edit">
+            <input type="hidden" name="category_id" id="edit_category_id">
+
+            <div class="modal-body">
+              <div class="mb-4">
+                <label for="edit_name" class="form-label">Category Name *</label>
+                <input type="text" class="form-control" id="edit_name" name="name" required>
+              </div>
+
+              <div class="mb-4">
+                <label for="edit_description" class="form-label">Description</label>
+                <textarea class="form-control" id="edit_description" name="description" rows="3"></textarea>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="add-product-btn-primary">Update Category</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// Add focus effects to form elements
+document.querySelectorAll('.form-control, .form-select').forEach(element => {
+  element.addEventListener('focus', function() {
+    this.style.borderColor = '#8b7ba8';
+    this.style.boxShadow = '0 0 0 2px rgba(139, 123, 168, 0.1)';
+  });
+
+  element.addEventListener('blur', function() {
+    this.style.borderColor = '#e0e0e0';
+    this.style.boxShadow = 'none';
+  });
+});
+
+function editCategory(id, name, description) {
+  document.getElementById('edit_category_id').value = id;
+  document.getElementById('edit_name').value = name;
+  document.getElementById('edit_description').value = description;
+
+  const modal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
+  modal.show();
+}
+</script>
+{% endblock %}

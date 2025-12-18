@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Order Confirmation - {{ order.order_number }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .order-details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .item { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .total { font-weight: bold; font-size: 18px; color: #667eea; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Order Confirmed!</h1>
+            <p>Thank you for shopping with Lavender Lily</p>
+        </div>
+
+        <div class="content">
+            <h2>Order Details</h2>
+            <p><strong>Order Number:</strong> {{ order.order_number }}</p>
+            <p><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
+            <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+
+            {% if order.shipping_address %}
+            <h3>Shipping Address</h3>
+            <p>
+                {{ order.shipping_address.full_name }}<br>
+                {{ order.shipping_address.address_line }}<br>
+                {{ order.shipping_address.city }}, {{ order.shipping_address.state }} {{ order.shipping_address.postal_code }}<br>
+                {{ order.shipping_address.country }}<br>
+                Phone: {{ order.shipping_address.phone }}
+            </p>
+            {% endif %}
+
+            <div class="order-details">
+                <h3>Items Ordered</h3>
+                {% for item in order.items.all %}
+                <div class="item">
+                    <strong>{{ item.product.name }}</strong><br>
+                    Category: {{ item.product.category }} | Color: {{ item.product.color }}<br>
+                    Quantity: {{ item.quantity }} | Price: AED {{ item.price }} | Subtotal: AED {{ item.subtotal }}
+                </div>
+                {% endfor %}
+
+                <div class="total">
+                    Total Amount: AED {{ order.total_amount }}
+                </div>
+            </div>
+
+            <p>Your order is now being processed. We'll send you updates as your order progresses.</p>
+
+            <p>If you have any questions, please contact our customer service.</p>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 Lavender Lily. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

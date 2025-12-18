@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit Product{% endblock %}
+
+{% block content %}
+<section class="add-product-main">
+  <div class="container">
+    <div class="row">
+      <!-- Header -->
+      <div class="col-12">
+        <div class="add-product-header">
+          <div class="add-product-header-content">
+            <h1><i class="fas fa-edit"></i> Edit Product</h1>
+            <p>Update product information</p>
+          </div>
+          <div class="add-product-header-actions">
+            <a href="{% url 'manage_products' %}" class="add-product-btn-primary">
+              <i class="fas fa-arrow-left"></i> Back to Products
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Form -->
+    <div class="row" style="margin-bottom: 4rem;">
+      <div class="col-12">
+        <div class="add-product-card">
+          <div class="add-product-card-header">
+            <h5><i class="fas fa-info-circle me-2"></i>Product Information</h5>
+          </div>
+          <div class="add-product-card-body">
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+
+              <div class="row">
+                <!-- Basic Information -->
+                <div class="col-lg-8">
+                  <h6 class="mb-4" style="font-family: 'Playfair Display', serif; color: #333; font-size: 1.4rem;">Basic Information</h6>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label for="name" class="form-label">Product Name *</label>
+                      <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                      <label for="sku" class="form-label">SKU</label>
+                      <input type="text" class="form-control" id="sku" name="sku" value="{{ product.sku }}">
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label for="category" class="form-label">Category *</label>
+                      <select class="form-select" id="category" name="category" required>
+                        <option value="">Select Category</option>
+                        {% for category in categories %}
+                        <option value="{{ category.pk }}" {% if category.pk == product.category.pk %}selected{% endif %}>
+                          {{ category.name }}
+                        </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                      <label for="color" class="form-label">Color *</label>
+                      <select class="form-select" id="color" name="color" required>
+                        <option value="">Select Color</option>
+                        {% for color in colors %}
+                        <option value="{{ color.pk }}" {% if color.pk == product.color.pk %}selected{% endif %}>
+                          {{ color.name }}
+                        </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="price" class="form-label">Price (AED) *</label>
+                    <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" value="{{ product.price }}" required>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="4">{{ product.description }}</textarea>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label for="material" class="form-label">Material</label>
+                      <input type="text" class="form-control" id="material" name="material" value="{{ product.material }}">
+                    </div>
+                    <div class="col-md-6 mb-4">
+                      <label for="care" class="form-label">Care Instructions</label>
+                      <textarea class="form-control" id="care" name="care" rows="2">{{ product.care }}</textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Images -->
+                <div class="col-md-4">
+                  <h6 class="mb-4" style="font-family: 'Playfair Display', serif; color: #333; font-size: 1.4rem;">Product Images</h6>
+
+                  <!-- Current Images Display -->
+                  <div class="mb-3">
+                    <label class="form-label">Current Images</label>
+                    <div class="row">
+                      {% if product.image_main %}
+                      <div class="col-6 mb-2">
+                        <img src="{{ product.image_main.url }}" alt="Main Image" class="img-thumbnail" style="width: 100%; height: 80px; object-fit: cover;">
+                        <small class="text-muted d-block">Main Image</small>
+                      </div>
+                      {% endif %}
+                      {% if product.image1 %}
+                      <div class="col-6 mb-2">
+                        <img src="{{ product.image1.url }}" alt="Image 1" class="img-thumbnail" style="width: 100%; height: 80px; object-fit: cover;">
+                        <small class="text-muted d-block">Image 1</small>
+                      </div>
+                      {% endif %}
+                      {% if product.image2 %}
+                      <div class="col-6 mb-2">
+                        <img src="{{ product.image2.url }}" alt="Image 2" class="img-thumbnail" style="width: 100%; height: 80px; object-fit: cover;">
+                        <small class="text-muted d-block">Image 2</small>
+                      </div>
+                      {% endif %}
+                      {% if product.image3 %}
+                      <div class="col-6 mb-2">
+                        <img src="{{ product.image3.url }}" alt="Image 3" class="img-thumbnail" style="width: 100%; height: 80px; object-fit: cover;">
+                        <small class="text-muted d-block">Image 3</small>
+                      </div>
+                      {% endif %}
+                      {% if product.image4 %}
+                      <div class="col-6 mb-2">
+                        <img src="{{ product.image4.url }}" alt="Image 4" class="img-thumbnail" style="width: 100%; height: 80px; object-fit: cover;">
+                        <small class="text-muted d-block">Image 4</small>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="image_main" class="form-label">Main Image</label>
+                    <input type="file" class="form-control" id="image_main" name="image_main" accept="image/*">
+                    <div class="form-text">Leave empty to keep current image</div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="image1" class="form-label">Additional Image 1</label>
+                    <input type="file" class="form-control" id="image1" name="image1" accept="image/*">
+                    <div class="form-text">Leave empty to keep current image</div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="image2" class="form-label">Additional Image 2</label>
+                    <input type="file" class="form-control" id="image2" name="image2" accept="image/*">
+                    <div class="form-text">Leave empty to keep current image</div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="image3" class="form-label">Additional Image 3</label>
+                    <input type="file" class="form-control" id="image3" name="image3" accept="image/*">
+                    <div class="form-text">Leave empty to keep current image</div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="image4" class="form-label">Additional Image 4</label>
+                    <input type="file" class="form-control" id="image4" name="image4" accept="image/*">
+                    <div class="form-text">Leave empty to keep current image</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sizes -->
+              <div class="row">
+                <div class="col-12">
+                  <h6 class="mb-3">Available Sizes</h6>
+                  <div class="row">
+                    {% for size in sizes %}
+                    <div class="col-md-2 col-sm-3 col-4 mb-2">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="size{{ size.pk }}" name="sizes" value="{{ size.pk }}"
+                               {% if size.pk in selected_sizes %}checked{% endif %}>
+                        <label class="form-check-label" for="size{{ size.pk }}">
+                          {{ size.name }}
+                        </label>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Buttons -->
+              <div class="row mt-4">
+                <div class="col-12">
+                  <hr>
+                  <div class="d-flex justify-content-end gap-3">
+                    <a href="{% url 'manage_products' %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="add-product-btn-primary">
+                      <i class="fas fa-save"></i> Update Product
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// Auto-generate SKU if empty
+document.getElementById('name').addEventListener('input', function() {
+  const name = this.value;
+  const skuField = document.getElementById('sku');
+
+  if (!skuField.value && name) {
+    // Generate SKU from name
+    const sku = name.toUpperCase()
+      .replace(/[^A-Z0-9]/g, '')
+      .substring(0, 8);
+    skuField.value = sku;
+  }
+});
+
+// Add focus effects to form elements
+document.querySelectorAll('.form-control, .form-select').forEach(element => {
+  element.addEventListener('focus', function() {
+    this.style.borderColor = '#8b7ba8';
+    this.style.boxShadow = '0 0 0 2px rgba(139, 123, 168, 0.1)';
+  });
+
+  element.addEventListener('blur', function() {
+    this.style.borderColor = '#e0e0e0';
+    this.style.boxShadow = 'none';
+  });
+});
+</script>
+{% endblock %}

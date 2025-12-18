@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Contact{% endblock %}
+
+{% block content %}
+
+<section class="llcontact-main-section">
+  <div class="llcontact-container">
+    <div class="llcontact-content-wrapper">
+      <div class="llcontact-row">
+
+        <!-- ================= LEFT COLUMN ================= -->
+        <div class="llcontact-info-column">
+          <h1 class="llcontact-title">{{ contact.title }}</h1>
+
+          <p class="llcontact-subtitle">
+            {{ contact.subtitle }}
+          </p>
+
+          {% for service in contact.services.all %}
+          <div class="llcontact-info-block">
+            <h3 class="llcontact-info-title">{{ service.title }}</h3>
+
+            <p class="llcontact-info-text">
+              {{ service.description|linebreaksbr }}<br>
+
+              {% if service.timing %}
+                {{ service.timing }}<br>
+              {% endif %}
+
+              {% if service.email %}
+                <a href="mailto:{{ service.email }}" class="llcontact-info-link">
+                  {{ service.email }}
+                </a>
+              {% endif %}
+            </p>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- ================= RIGHT COLUMN ================= -->
+        <div class="llcontact-form-column">
+
+          <!-- Django success message -->
+          {% if messages %}
+            {% for message in messages %}
+              <div class="llcontact-success-message show">
+                <i class="fas fa-check-circle"></i> {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          <!-- ✅ REAL BACKEND FORM -->
+          <form class="llcontact-form" method="POST" action="">
+            {% csrf_token %}
+
+            <div class="llcontact-form-group">
+              <label class="llcontact-label">Name</label>
+              <input
+                type="text"
+                class="llcontact-input"
+                name="name"
+                placeholder="Your name"
+                value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% endif %}"
+                required
+              />
+            </div>
+
+            <div class="llcontact-form-group">
+              <label class="llcontact-label">Email</label>
+              <input
+                type="email"
+                class="llcontact-input"
+                name="email"
+                placeholder="your@email.com"
+                value="{% if user.is_authenticated %}{{ user.email }}{% endif %}"
+                required
+              />
+            </div>
+
+            <div class="llcontact-form-group">
+              <label class="llcontact-label">Subject</label>
+              <input
+                type="text"
+                class="llcontact-input"
+                name="subject"
+                placeholder="Subject of your message"
+                required
+              />
+            </div>
+
+            <div class="llcontact-form-group">
+              <label class="llcontact-label">Message</label>
+              <textarea
+                class="llcontact-textarea"
+                name="message"
+                placeholder="How can we help?"
+                required
+              ></textarea>
+            </div>
+
+            <button type="submit" class="llcontact-submit-btn">
+              Send Message
+            </button>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

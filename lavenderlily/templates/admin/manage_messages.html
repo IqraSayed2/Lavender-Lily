@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Messages{% endblock %}
+
+{% block content %}
+<section class="messages-management">
+  <div class="container">
+    <div class="row">
+      <!-- Header -->
+      <div class="col-12">
+        <div class="messages-header">
+          <div class="messages-header-content">
+            <h1><i class="fas fa-envelope"></i> Contact Messages</h1>
+            <p>View and manage customer inquiries</p>
+          </div>
+          <div class="messages-header-actions">
+            <a href="{% url 'admin_dashboard' %}" class="messages-back-link">
+              <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages List -->
+    <div class="row">
+      <div class="col-12">
+        <div class="messages-list-card">
+          <div class="messages-list-header">
+            <h5>All Messages</h5>
+            <div class="messages-filters">
+              <select class="messages-filter-select" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="unread">Unread</option>
+                <option value="read">Read</option>
+                <option value="replied">Replied</option>
+              </select>
+              <input type="text" class="messages-search-input" id="searchInput" placeholder="Search messages...">
+            </div>
+          </div>
+          <div class="messages-list-body">
+            <div class="messages-table-container">
+              <table class="messages-table">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="messagesTable">
+                  {% for message in messages %}
+                  <tr>
+                    <td>
+                      {% if message.is_read %}
+                        {% if message.is_replied %}
+                          <span class="messages-badge messages-badge-replied">Replied</span>
+                        {% else %}
+                          <span class="messages-badge messages-badge-read">Read</span>
+                        {% endif %}
+                      {% else %}
+                        <span class="messages-badge messages-badge-unread">Unread</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ message.name }}</td>
+                    <td>{{ message.email }}</td>
+                    <td>{{ message.subject|truncatechars:50 }}</td>
+                    <td>{{ message.created_at|date:"M d, Y H:i" }}</td>
+                    <td>
+                      <div class="messages-actions">
+                        <button type="button" class="messages-action-btn messages-action-view"
+                                onclick="viewMessage({{ message.pk }})">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        {% if not message.is_replied %}
+                        <button type="button" class="messages-action-btn messages-action-reply"
+                                onclick="replyToMessage({{ message.pk }}, '{{ message.email }}', '{{ message.subject }}')">
+                          <i class="fas fa-reply"></i>
+                        </button>
+                        {% endif %}
+                        <button type="button" class="messages-action-btn messages-action-delete"
+                                onclick="deleteMessage({{ message.pk }}, '{{ message.subject }}')">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="6" class="messages-empty-cell">
+                      <div class="messages-empty-state">
+                        <i class="fas fa-envelope messages-empty-icon"></i>
+                        <p class="messages-empty-text">No messages found.</p>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if messages.has_other_pages %}
+            <nav aria-label="Message pagination" class="messages-pagination">
+              <ul class="messages-pagination-list">
+                {% if messages.has_previous %}
+                <li class="messages-pagination-item">
+                  <a class="messages-pagination-link" href="?page={{ messages.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% for num in messages.paginator.page_range %}
+                {% if messages.number == num %}
+                <li class="messages-pagination-item messages-pagination-active">
+                  <a class="messages-pagination-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% elif num > messages.number|add:'-3' and num < messages.number|add:'3' %}
+                <li class="messages-pagination-item">
+                  <a class="messages-pagination-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if messages.has_next %}
+                <li class="messages-pagination-item">
+                  <a class="messages-pagination-link" href="?page={{ messages.next_page_number }}">Next</a>
+                </li>
+                {% endif %}
+              </ul>
+            </nav>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- View Message Modal -->
+<div class="modal fade" id="viewMessageModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content messages-modal" style="padding: 40px;">
+      <div class="modal-header messages-modal-header">
+        <h5 class="modal-title messages-modal-title">View Message</h5>
+        <button type="button" class="btn-close messages-modal-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body messages-modal-body" id="messageContent">
+        <!-- Message content will be loaded here -->
+      </div>
+      <div class="modal-footer messages-modal-footer">
+        <button type="button" class="messages-modal-btn messages-modal-btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="messages-modal-btn messages-modal-btn-primary" id="replyBtn" style="display: none;">
+          <i class="fas fa-reply"></i> Reply
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reply Modal -->
+<div class="modal fade" id="replyModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content messages-modal">
+      <div class="modal-header messages-modal-header">
+        <h5 class="modal-title messages-modal-title">Reply to Message</h5>
+        <button type="button" class="btn-close messages-modal-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="replyForm">
+        <div class="modal-body messages-modal-body">
+          {% csrf_token %}
+          <input type="hidden" name="message_id" id="replyMessageId">
+          <div class="messages-form-group">
+            <label for="replySubject" class="messages-form-label">Subject</label>
+            <input type="text" class="messages-form-input" id="replySubject" name="subject" required>
+          </div>
+          <div class="messages-form-group">
+            <label for="replyMessage" class="messages-form-label">Message</label>
+            <textarea class="messages-form-textarea" id="replyMessage" name="message" rows="8" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer messages-modal-footer">
+          <button type="button" class="messages-modal-btn messages-modal-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="messages-modal-btn messages-modal-btn-primary">Send Reply</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content messages-modal">
+      <div class="modal-header messages-modal-header">
+        <h5 class="modal-title messages-modal-title">Delete Message</h5>
+        <button type="button" class="btn-close messages-modal-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body messages-modal-body">
+        <p>Are you sure you want to delete the message "<span id="deleteSubject"></span>"?</p>
+        <div class="messages-alert messages-alert-warning">
+          <strong>Warning:</strong> This action cannot be undone.
+        </div>
+      </div>
+      <div class="modal-footer messages-modal-footer">
+        <button type="button" class="messages-modal-btn messages-modal-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="messages-modal-btn messages-modal-btn-danger" id="confirmDelete">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function viewMessage(messageId) {
+  fetch(`/dashboard/manage/messages/${messageId}/view/`, {
+    method: 'GET',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      'Content-Type': 'application/json',
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('messageContent').innerHTML = `
+        <div class="message-details">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <strong>From:</strong> ${data.message.name} &lt;${data.message.email}&gt;
+            </div>
+            <div class="col-md-6">
+              <strong>Date:</strong> ${data.message.created_at}
+            </div>
+          </div>
+          <div class="mb-3">
+            <strong>Subject:</strong> ${data.message.subject}
+          </div>
+          <div class="mb-3">
+            <strong>Message:</strong>
+            <div class="message-body border p-3 mt-2">
+              ${data.message.message.replace(/\n/g, '<br>')}
+            </div>
+          </div>
+          ${data.message.is_replied ? `
+          <div class="alert alert-success">
+            <strong>Reply sent on ${data.message.replied_at}</strong>
+          </div>
+          ` : ''}
+        </div>
+      `;
+
+      const replyBtn = document.getElementById('replyBtn');
+      if (!data.message.is_replied) {
+        replyBtn.style.display = 'inline-block';
+        replyBtn.onclick = () => replyToMessage(data.message.id, data.message.email, data.message.subject);
+      } else {
+        replyBtn.style.display = 'none';
+      }
+
+      new bootstrap.Modal(document.getElementById('viewMessageModal')).show();
+    }
+  });
+}
+
+function replyToMessage(messageId, email, subject) {
+  document.getElementById('replyMessageId').value = messageId;
+  document.getElementById('replySubject').value = `Re: ${subject}`;
+  document.getElementById('replyMessage').value = `Dear ${email.split('@')[0]},\n\nThank you for contacting Lavender Lily.\n\n`;
+
+  new bootstrap.Modal(document.getElementById('replyModal')).show();
+}
+
+// Handle reply form submission
+document.getElementById('replyForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const messageId = formData.get('message_id');
+  
+  fetch(`/dashboard/manage/messages/${messageId}/reply/`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    }
+  })
+  .then(response => {
+    if (response.ok) {
+      // Close modal and reload page
+      bootstrap.Modal.getInstance(document.getElementById('replyModal')).hide();
+      location.reload();
+    } else {
+      alert('Failed to send reply. Please try again.');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred. Please try again.');
+  });
+});
+
+function deleteMessage(messageId, subject) {
+  document.getElementById('deleteSubject').textContent = subject;
+  document.getElementById('confirmDelete').onclick = function() {
+    fetch(`/dashboard/manage/messages/${messageId}/delete/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        location.reload();
+      } else {
+        alert('Failed to delete message. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+    });
+  };
+  new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+  const searchTerm = this.value.toLowerCase();
+  const rows = document.querySelectorAll('#messagesTable tr');
+
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(searchTerm) ? '' : 'none';
+  });
+});
+
+// Status filter functionality
+document.getElementById('statusFilter').addEventListener('change', function() {
+  const status = this.value;
+  const rows = document.querySelectorAll('#messagesTable tr');
+
+  rows.forEach(row => {
+    if (!status) {
+      row.style.display = '';
+      return;
+    }
+
+    const badges = row.querySelectorAll('.messages-badge');
+    let showRow = false;
+
+    badges.forEach(badge => {
+      if ((status === 'unread' && badge.classList.contains('messages-badge-unread')) ||
+          (status === 'read' && badge.classList.contains('messages-badge-read')) ||
+          (status === 'replied' && badge.classList.contains('messages-badge-replied'))) {
+        showRow = true;
+      }
+    });
+
+    row.style.display = showRow ? '' : 'none';
+  });
+});
+
+// Form focus effects
+document.addEventListener('DOMContentLoaded', function() {
+  const formInputs = document.querySelectorAll('.messages-form-input, .messages-form-textarea');
+
+  formInputs.forEach(input => {
+    input.addEventListener('focus', function() {
+      this.parentElement.classList.add('focused');
+    });
+
+    input.addEventListener('blur', function() {
+      this.parentElement.classList.remove('focused');
+    });
+  });
+});
+</script>
+
+{% endblock %}

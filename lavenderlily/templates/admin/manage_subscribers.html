@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Subscribers{% endblock %}
+
+{% block content %}
+<section class="manage-subs-management">
+  <div class="container">
+    <div class="row">
+      <!-- Header -->
+      <div class="col-12">
+        <div class="manage-subs-header">
+          <div class="manage-subs-header-content">
+            <h1><i class="fas fa-users"></i> Newsletter Subscribers</h1>
+            <p>Manage newsletter subscribers and send targeted emails</p>
+          </div>
+          <div class="manage-subs-header-actions">
+            <a href="{% url 'admin_dashboard' %}" class="manage-subs-back-link">
+              <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subscriber Stats -->
+    <div class="manage-subs-stats-grid">
+      <div class="manage-subs-stat-card">
+        <div class="manage-subs-stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="manage-subs-stat-content">
+          <h3>{{ total_subscribers|default:0 }}</h3>
+          <p>Total Subscribers</p>
+        </div>
+      </div>
+      <div class="manage-subs-stat-card">
+        <div class="manage-subs-stat-icon">
+          <i class="fas fa-user-check"></i>
+        </div>
+        <div class="manage-subs-stat-content">
+          <h3>{{ active_subscribers|default:0 }}</h3>
+          <p>Active Subscribers</p>
+        </div>
+      </div>
+      <div class="manage-subs-stat-card">
+        <div class="manage-subs-stat-icon">
+          <i class="fas fa-calendar-plus"></i>
+        </div>
+        <div class="manage-subs-stat-content">
+          <h3>{{ new_this_month|default:0 }}</h3>
+          <p>New This Month</p>
+        </div>
+      </div>
+      <div class="manage-subs-stat-card">
+        <div class="manage-subs-stat-icon">
+          <i class="fas fa-user-times"></i>
+        </div>
+        <div class="manage-subs-stat-content">
+          <h3>{{ unsubscribed|default:0 }}</h3>
+          <p>Unsubscribed</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subscribers List -->
+    <div class="row">
+      <div class="col-12">
+        <div class="manage-subs-form-card">
+          <div class="manage-subs-form-header">
+            <h5>All Subscribers</h5>
+            <div class="manage-subs-card-actions">
+              <select class="manage-subs-form-input" id="statusFilter" style="width: auto; min-width: 180px;">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="unsubscribed">Unsubscribed</option>
+              </select>
+              <input type="text" class="manage-subs-form-input" id="searchInput" placeholder="Search subscribers..." style="width: auto; min-width: 200px;">
+            </div>
+          </div>
+          <div class="manage-subs-form-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Subscribed</th>
+                    <th>Last Email</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="subscribersTable">
+                  {% for subscriber in subscribers %}
+                  <tr>
+                    <td>{{ subscriber.email }}</td>
+                    <td>{{ subscriber.name|default:"-" }}</td>
+                    <td>
+                      {% if subscriber.is_active %}
+                        <span class="manage-subs-status-badge manage-subs-status-active">Active</span>
+                      {% else %}
+                        <span class="manage-subs-status-badge manage-subs-status-unsubscribed">Unsubscribed</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ subscriber.subscribed_at|date:"M d, Y" }}</td>
+                    <td>
+                      {% if subscriber.last_email_sent %}
+                        {{ subscriber.last_email_sent|date:"M d, Y" }}
+                      {% else %}
+                        Never
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="btn-group" role="group">
+                        {% if subscriber.is_active %}
+                        <button type="button" class="manage-subs-action-btn"
+                                onclick="unsubscribeSubscriber({{ subscriber.pk }}, '{{ subscriber.email }}')">
+                          <i class="fas fa-user-times"></i>
+                        </button>
+                        {% else %}
+                        <button type="button" class="manage-subs-action-btn"
+                                onclick="resubscribeSubscriber({{ subscriber.pk }}, '{{ subscriber.email }}')">
+                          <i class="fas fa-user-check"></i>
+                        </button>
+                        {% endif %}
+                        <button type="button" class="manage-subs-action-btn manage-subs-delete-btn"
+                                onclick="deleteSubscriber({{ subscriber.pk }}, '{{ subscriber.email }}')">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="6" class="text-center py-4">
+                      <p class="text-muted mb-0">No subscribers found.</p>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if subscribers.has_other_pages %}
+            <nav aria-label="Subscriber pagination" class="mt-4">
+              <ul class="pagination justify-content-center">
+                {% if subscribers.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ subscribers.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% for num in subscribers.paginator.page_range %}
+                {% if subscribers.number == num %}
+                <li class="page-item active">
+                  <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% elif num > subscribers.number|add:'-3' and num < subscribers.number|add:'3' %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if subscribers.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ subscribers.next_page_number }}">Next</a>
+                </li>
+                {% endif %}
+              </ul>
+            </nav>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Unsubscribe Modal -->
+<div class="modal fade" id="unsubscribeModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Unsubscribe Subscriber</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to unsubscribe <strong><span id="unsubscribeEmail"></span></strong>?</p>
+        <div class="alert alert-warning">
+          <strong>Note:</strong> This will prevent them from receiving future newsletters.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="manage-subs-action-btn" id="confirmUnsubscribe">
+          <i class="fas fa-user-times"></i> Unsubscribe
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Resubscribe Modal -->
+<div class="modal fade" id="resubscribeModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Resubscribe Subscriber</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to resubscribe <strong><span id="resubscribeEmail"></span></strong>?</p>
+        <div class="alert alert-info">
+          <strong>Note:</strong> This will allow them to receive future newsletters again.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="manage-subs-action-btn" id="confirmResubscribe">
+          <i class="fas fa-user-check"></i> Resubscribe
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Subscriber</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to permanently delete the subscriber <strong><span id="deleteEmail"></span></strong>?</p>
+        <div class="alert alert-danger">
+          <strong>Warning:</strong> This action cannot be undone. The subscriber will be completely removed from the database.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="manage-subs-delete-btn" id="confirmDelete">
+          <i class="fas fa-trash"></i> Delete Permanently
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function unsubscribeSubscriber(subscriberId, email) {
+  document.getElementById('unsubscribeEmail').textContent = email;
+  document.getElementById('confirmUnsubscribe').onclick = function() {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.innerHTML = `
+      {% csrf_token %}
+      <input type="hidden" name="unsubscribe_subscriber" value="${subscriberId}">
+    `;
+    document.body.appendChild(form);
+    form.submit();
+  };
+  new bootstrap.Modal(document.getElementById('unsubscribeModal')).show();
+}
+
+function resubscribeSubscriber(subscriberId, email) {
+  document.getElementById('resubscribeEmail').textContent = email;
+  document.getElementById('confirmResubscribe').onclick = function() {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.innerHTML = `
+      {% csrf_token %}
+      <input type="hidden" name="resubscribe_subscriber" value="${subscriberId}">
+    `;
+    document.body.appendChild(form);
+    form.submit();
+  };
+  new bootstrap.Modal(document.getElementById('resubscribeModal')).show();
+}
+
+function deleteSubscriber(subscriberId, email) {
+  document.getElementById('deleteEmail').textContent = email;
+  document.getElementById('confirmDelete').onclick = function() {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.innerHTML = `
+      {% csrf_token %}
+      <input type="hidden" name="delete_subscriber" value="${subscriberId}">
+    `;
+    document.body.appendChild(form);
+    form.submit();
+  };
+  new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+  const searchTerm = this.value.toLowerCase();
+  const rows = document.querySelectorAll('#subscribersTable tr');
+
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(searchTerm) ? '' : 'none';
+  });
+});
+
+// Status filter functionality
+document.getElementById('statusFilter').addEventListener('change', function() {
+  const status = this.value;
+  const rows = document.querySelectorAll('#subscribersTable tr');
+
+  rows.forEach(row => {
+    if (!status) {
+      row.style.display = '';
+      return;
+    }
+
+    const statusBadges = row.querySelectorAll('.manage-subs-status-badge');
+    let showRow = false;
+
+    statusBadges.forEach(badge => {
+      if ((status === 'active' && badge.classList.contains('manage-subs-status-active')) ||
+          (status === 'unsubscribed' && badge.classList.contains('manage-subs-status-unsubscribed'))) {
+        showRow = true;
+      }
+    });
+
+    row.style.display = showRow ? '' : 'none';
+  });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Add focus effects to form inputs
+  const formInputs = document.querySelectorAll('.manage-subs-form-input, .manage-subs-form-textarea');
+
+  formInputs.forEach(input => {
+    input.addEventListener('focus', function() {
+      this.parentElement.classList.add('focused');
+    });
+
+    input.addEventListener('blur', function() {
+      this.parentElement.classList.remove('focused');
+    });
+  });
+});
+</script>
+{% endblock %}

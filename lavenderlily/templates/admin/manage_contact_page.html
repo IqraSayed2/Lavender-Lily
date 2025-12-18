@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Contact Page{% endblock %}
+
+{% block content %}
+<section class="manage-contact-management">
+  <div class="container">
+    <div class="row">
+      <!-- Header -->
+      <div class="col-12">
+        <div class="manage-contact-header">
+          <div class="manage-contact-header-content">
+            <h1><i class="fas fa-address-book"></i> Contact Page Management</h1>
+            <p>Edit contact page content and services</p>
+          </div>
+          <div class="manage-contact-header-actions">
+            <a href="{% url 'admin_dashboard' %}" class="manage-contact-back-link">
+              <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Page Form -->
+    <div class="row">
+      <div class="col-12">
+        <div class="manage-contact-form-card">
+          <div class="manage-contact-form-header">
+            <h5>Contact Page Content</h5>
+          </div>
+          <div class="manage-contact-form-body">
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+
+              <!-- Page Title -->
+              <div class="mb-4">
+                <label for="id_title" class="manage-contact-form-label">Page Title</label>
+                <input type="text" class="manage-contact-form-input" id="id_title" name="title"
+                       value="{{ contact_page.title|default:'' }}" required>
+              </div>
+
+              <!-- Meta Description -->
+              <div class="mb-4">
+                <label for="id_meta_description" class="manage-contact-form-label">Meta Description</label>
+                <textarea class="manage-contact-form-textarea" id="id_meta_description" name="meta_description"
+                          rows="3">{{ contact_page.meta_description|default:'' }}</textarea>
+              </div>
+
+              <!-- Hero Section -->
+              <div class="mb-4">
+                <h6 class="manage-contact-section-subtitle">Hero Section</h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="id_hero_title" class="manage-contact-form-label">Hero Title</label>
+                    <input type="text" class="manage-contact-form-input" id="id_hero_title" name="hero_title"
+                           value="{{ contact_page.hero_title|default:'' }}">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="id_hero_subtitle" class="manage-contact-form-label">Hero Subtitle</label>
+                    <input type="text" class="manage-contact-form-input" id="id_hero_subtitle" name="hero_subtitle"
+                           value="{{ contact_page.hero_subtitle|default:'' }}">
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <label for="id_hero_image" class="manage-contact-form-label">Hero Background Image</label>
+                  <input type="file" class="manage-contact-form-input" id="id_hero_image" name="hero_image" accept="image/*">
+                  {% if contact_page.hero_image %}
+                  <div class="mt-2">
+                    <img src="{{ contact_page.hero_image.url }}" alt="Current hero image" class="manage-contact-image-preview">
+                    <p class="manage-contact-form-help">Leave empty to keep current image</p>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Contact Information -->
+              <div class="mb-4">
+                <h6 class="manage-contact-section-subtitle">Contact Information</h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="id_address" class="manage-contact-form-label">Address</label>
+                    <textarea class="manage-contact-form-textarea" id="id_address" name="address" rows="3">{{ contact_page.address|default:'' }}</textarea>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="id_phone" class="manage-contact-form-label">Phone</label>
+                    <input type="text" class="manage-contact-form-input" id="id_phone" name="phone"
+                           value="{{ contact_page.phone|default:'' }}">
+                    <label for="id_email" class="manage-contact-form-label mt-3">Email</label>
+                    <input type="email" class="manage-contact-form-input" id="id_email" name="email"
+                           value="{{ contact_page.email|default:'' }}">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Services Section -->
+              <div class="mb-4">
+                <h6 class="manage-contact-section-subtitle">Services</h6>
+                <div id="services-container">
+                  {% for service in services %}
+                  <div class="service-item">
+                    <div class="row">
+                      <div class="col-md-5">
+                        <label class="manage-contact-form-label">Service Title</label>
+                        <input type="text" class="manage-contact-form-input" name="service_title_{{ forloop.counter }}"
+                               value="{{ service.title }}" required>
+                      </div>
+                      <div class="col-md-5">
+                        <label class="manage-contact-form-label">Service Description</label>
+                        <textarea class="manage-contact-form-textarea" name="service_description_{{ forloop.counter }}"
+                                  rows="2" required>{{ service.description }}</textarea>
+                      </div>
+                      <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-service">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  {% empty %}
+                  <div class="service-item">
+                    <div class="row">
+                      <div class="col-md-5">
+                        <label class="manage-contact-form-label">Service Title</label>
+                        <input type="text" class="manage-contact-form-input" name="service_title_1" required>
+                      </div>
+                      <div class="col-md-5">
+                        <label class="manage-contact-form-label">Service Description</label>
+                        <textarea class="manage-contact-form-textarea" name="service_description_1" rows="2" required></textarea>
+                      </div>
+                      <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-service">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="add-service">
+                  <i class="fas fa-plus"></i> Add Service
+                </button>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="text-end">
+                <button type="submit" class="lavender-btn-primary manage-contact-submit-btn">
+                  <i class="fas fa-save"></i> Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+let serviceCounter = {{ services|length|default:1 }};
+
+document.getElementById('add-service').addEventListener('click', function() {
+  serviceCounter++;
+  const container = document.getElementById('services-container');
+  const serviceItem = document.createElement('div');
+  serviceItem.className = 'service-item';
+  serviceItem.innerHTML = `
+    <div class="row">
+      <div class="col-md-5">
+        <label class="manage-contact-form-label">Service Title</label>
+        <input type="text" class="manage-contact-form-input" name="service_title_${serviceCounter}" required>
+      </div>
+      <div class="col-md-5">
+        <label class="manage-contact-form-label">Service Description</label>
+        <textarea class="manage-contact-form-textarea" name="service_description_${serviceCounter}" rows="2" required></textarea>
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <button type="button" class="btn btn-outline-danger btn-sm remove-service">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  `;
+  container.appendChild(serviceItem);
+  attachRemoveListeners();
+  attachFocusListeners(); // Add focus listeners to new elements
+});
+
+function attachRemoveListeners() {
+  document.querySelectorAll('.remove-service').forEach(btn => {
+    btn.addEventListener('click', function() {
+      this.closest('.service-item').remove();
+    });
+  });
+}
+
+function attachFocusListeners() {
+  document.querySelectorAll('.manage-contact-form-input, .manage-contact-form-textarea').forEach(element => {
+    element.addEventListener('focus', function() {
+      this.style.borderColor = '#8b7ba8';
+      this.style.boxShadow = '0 0 0 2px rgba(139, 123, 168, 0.1)';
+    });
+
+    element.addEventListener('blur', function() {
+      this.style.borderColor = '#e0e0e0';
+      this.style.boxShadow = 'none';
+    });
+  });
+}
+
+attachRemoveListeners();
+attachFocusListeners(); // Initialize focus listeners
+</script>
+
+{% endblock %}

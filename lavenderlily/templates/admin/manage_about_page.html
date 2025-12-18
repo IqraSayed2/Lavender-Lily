@@ -1,0 +1,324 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% block title %}Manage About Page{% endblock %} 
+{% block content %}
+<section class="manage-about-management">
+  <div class="container">
+    <div class="row">
+      <!-- Header -->
+      <div class="col-12">
+        <div class="manage-about-header">
+          <div class="manage-about-header-content">
+            <h1><i class="fas fa-info-circle"></i> About Page Management</h1>
+            <p>Edit about page content and story</p>
+          </div>
+          <div class="manage-about-header-actions">
+            <a
+              href="{% url 'admin_dashboard' %}"
+              class="manage-about-back-link"
+            >
+              <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Page Form -->
+    <div class="row">
+      <div class="col-12">
+        <div class="manage-about-form-card">
+          <div class="manage-about-form-header">
+            <h5>About Page Content</h5>
+          </div>
+          <div class="manage-about-form-body">
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+
+              <!-- Page Title -->
+              <div class="mb-4">
+                <label for="id_title" class="manage-about-form-label"
+                  >Page Title</label
+                >
+                <input
+                  type="text"
+                  class="manage-about-form-input"
+                  id="id_title"
+                  name="title"
+                  value="{{ about_page.title|default:'' }}"
+                  required
+                />
+              </div>
+
+              <!-- Meta Description -->
+              <div class="mb-4">
+                <label for="id_meta_description" class="manage-about-form-label"
+                  >Meta Description</label
+                >
+                <textarea
+                  class="manage-about-form-textarea"
+                  id="id_meta_description"
+                  name="meta_description"
+                  rows="3"
+                > {{ about_page.meta_description|default:'' }}</textarea
+                >
+              </div>
+
+              <!-- Hero Section -->
+              <div class="mb-4">
+                <h6 class="manage-about-section-subtitle">Hero Section</h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="id_hero_title" class="manage-about-form-label"
+                      >Hero Title</label
+                    >
+                    <input
+                      type="text"
+                      class="manage-about-form-input"
+                      id="id_hero_title"
+                      name="hero_title"
+                      value="{{ about_page.hero_title|default:'' }}"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label
+                      for="id_hero_subtitle"
+                      class="manage-about-form-label"
+                      >Hero Subtitle</label
+                    >
+                    <input
+                      type="text"
+                      class="manage-about-form-input"
+                      id="id_hero_subtitle"
+                      name="hero_subtitle"
+                      value="{{ about_page.hero_subtitle|default:'' }}"
+                    />
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <label for="id_hero_image" class="manage-about-form-label"
+                    >Hero Background Image</label
+                  >
+                  <input
+                    type="file"
+                    class="manage-about-form-input"
+                    id="id_hero_image"
+                    name="hero_image"
+                    accept="image/*"
+                  />
+                  {% if about_page.hero_image %}
+                  <div class="mt-2">
+                    <img
+                      src="{{ about_page.hero_image.url }}"
+                      alt="Current hero image"
+                      class="manage-about-image-preview"
+                    />
+                    <p class="manage-about-form-help">
+                      Leave empty to keep current image
+                    </p>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Story Section -->
+              <div class="mb-4">
+                <h6 class="manage-about-section-subtitle">Our Story</h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="id_story_title" class="manage-about-form-label"
+                      >Story Title</label
+                    >
+                    <input
+                      type="text"
+                      class="manage-about-form-input"
+                      id="id_story_title"
+                      name="story_title"
+                      value="{{ about_page.story_title|default:'' }}"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label
+                      for="id_story_subtitle"
+                      class="manage-about-form-label"
+                      >Story Subtitle</label
+                    >
+                    <input
+                      type="text"
+                      class="manage-about-form-input"
+                      id="id_story_subtitle"
+                      name="story_subtitle"
+                      value="{{ about_page.story_subtitle|default:'' }}"
+                    />
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <label for="id_story_content" class="manage-about-form-label"
+                    >Story Content</label
+                  >
+                  <textarea
+                    class="manage-about-form-textarea"
+                    id="id_story_content"
+                    name="story_content"
+                    rows="6"
+                  > {{ about_page.story_content|default:'' }}</textarea
+                  >
+                </div>
+                <div class="mt-3">
+                  <label for="id_story_image" class="manage-about-form-label"
+                    >Story Image</label
+                  >
+                  <input
+                    type="file"
+                    class="manage-about-form-input"
+                    id="id_story_image"
+                    name="story_image"
+                    accept="image/*"
+                  />
+                  {% if about_page.story_image %}
+                  <div class="mt-2">
+                    <img
+                      src="{{ about_page.story_image.url }}"
+                      alt="Current story image"
+                      class="manage-about-image-preview"
+                    />
+                    <p class="manage-about-form-help">
+                      Leave empty to keep current image
+                    </p>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Mission Section -->
+              <div class="mb-4">
+                <h6 class="manage-about-section-subtitle">Mission & Values</h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label
+                      for="id_mission_title"
+                      class="manage-about-form-label"
+                      >Mission Title</label
+                    >
+                    <input
+                      type="text"
+                      class="manage-about-form-input"
+                      id="id_mission_title"
+                      name="mission_title"
+                      value="{{ about_page.mission_title|default:'' }}"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="id_values_title" class="manage-about-form-label"
+                      >Values Title</label
+                    >
+                    <input
+                      type="text"
+                      class="manage-about-form-input"
+                      id="id_values_title"
+                      name="values_title"
+                      value="{{ about_page.values_title|default:'' }}"
+                    />
+                  </div>
+                </div>
+                <div class="row mt-3">
+                  <div class="col-md-6">
+                    <label
+                      for="id_mission_content"
+                      class="manage-about-form-label"
+                      >Mission Content</label
+                    >
+                    <textarea
+                      class="manage-about-form-textarea"
+                      id="id_mission_content"
+                      name="mission_content"
+                      rows="4"
+                    > {{ about_page.mission_content|default:'' }}</textarea
+                    >
+                  </div>
+                  <div class="col-md-6">
+                    <label
+                      for="id_values_content"
+                      class="manage-about-form-label"
+                      >Values Content</label
+                    >
+                    <textarea
+                      class="manage-about-form-textarea"
+                      id="id_values_content"
+                      name="values_content"
+                      rows="4"
+                    > {{ about_page.values_content|default:'' }}</textarea
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- Team Section -->
+              <div class="mb-4">
+                <h6 class="manage-about-section-subtitle">Team Section</h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="id_team_title" class="manage-about-form-label"
+                      >Team Section Title</label
+                    >
+                    <input
+                      type="text"
+                      class="manage-about-form-input"
+                      id="id_team_title"
+                      name="team_title"
+                      value="{{ about_page.team_title|default:'' }}"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label
+                      for="id_team_subtitle"
+                      class="manage-about-form-label"
+                      >Team Section Subtitle</label
+                    >
+                    <input
+                      type="text"
+                      class="manage-about-form-input"
+                      id="id_team_subtitle"
+                      name="team_subtitle"
+                      value="{{ about_page.team_subtitle|default:'' }}"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="text-end">
+                <button
+                  type="submit"
+                  class="lavender-btn-primary manage-about-submit-btn"
+                >
+                  <i class="fas fa-save"></i> Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Add focus effects to form inputs
+    const formInputs = document.querySelectorAll(
+      ".manage-about-form-input, .manage-about-form-textarea"
+    );
+
+    formInputs.forEach((input) => {
+      input.addEventListener("focus", function () {
+        this.parentElement.classList.add("focused");
+      });
+
+      input.addEventListener("blur", function () {
+        this.parentElement.classList.remove("focused");
+      });
+    });
+  });
+</script>
+{% endblock %}

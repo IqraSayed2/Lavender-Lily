@@ -1,0 +1,444 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}My Account{% endblock %}
+
+{% block content %}
+
+
+
+<section class="llaccount-section">
+  <div class="llaccount-container">
+    <div class="row">
+
+      <!-- ================= SIDEBAR ================= -->
+      <div class="col-lg-3">
+        <div class="llaccount-sidebar">
+
+          <div class="llaccount-profile-header">
+            <div class="llaccount-avatar">
+              {{ user.first_name|default:user.username|slice:":1"|upper }}
+            </div>
+
+            <h3 class="llaccount-profile-name">
+              {{ user.get_full_name|default:user.username }}
+            </h3>
+
+            <p class="llaccount-profile-email">
+              {{ user.email }}
+            </p>
+          </div>
+
+          <ul class="llaccount-menu">
+            <li class="llaccount-menu-item">
+              <a href="#" class="llaccount-menu-link active" onclick="showTab('overview', event)">
+                <i class="fas fa-th-large"></i> Account Overview
+              </a>
+            </li>
+
+            <li class="llaccount-menu-item">
+              <a href="#" class="llaccount-menu-link" onclick="showTab('orders', event)">
+                <i class="fas fa-box"></i> My Orders
+              </a>
+            </li>
+
+            <li class="llaccount-menu-item">
+              <a href="#" class="llaccount-menu-link" onclick="showTab('addresses', event)">
+                <i class="fas fa-map-marker-alt"></i> My Addresses
+              </a>
+            </li>
+
+            <li class="llaccount-menu-item">
+              <a href="#" class="llaccount-menu-link" onclick="showTab('wishlist', event)">
+                <i class="far fa-heart"></i> Wishlist
+              </a>
+            </li>
+
+            <li class="llaccount-menu-item">
+              <a href="{% url 'logout' %}" class="llaccount-menu-link logout">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+              </a>
+            </li>
+          </ul>
+
+        </div>
+      </div>
+
+      <!-- ================= MAIN CONTENT ================= -->
+      <div class="col-lg-9">
+        <div class="llaccount-content">
+          <h1 class="llaccount-title">My Account</h1>
+
+          <!-- ================= OVERVIEW ================= -->
+<div class="llaccount-form-section active" id="overviewSection">
+
+  <!-- VIEW MODE -->
+  <div id="profileView">
+    <div class="llaccount-overview-info">
+      <div class="row">
+        <div class="col-md-4">
+          <h5>Personal Information</h5>
+          <p><strong>Full Name:</strong> {{ user.get_full_name|default:"Not set" }}</p>
+          <p><strong>First Name:</strong> {{ user.first_name|default:"Not set" }}</p>
+          <p><strong>Last Name:</strong> {{ user.last_name|default:"Not set" }}</p>
+          <p><strong>Username:</strong> {{ user.username }}</p>
+        </div>
+        <div class="col-md-4">
+          <h5>Account Information</h5>
+          <p><strong>Email:</strong> {{ user.email }}</p>
+          <p><strong>Account Status:</strong> 
+            {% if user.is_active %}
+              <span class="text-success">Active</span>
+            {% else %}
+              <span class="text-danger">Inactive</span>
+            {% endif %}
+          </p>
+          <p><strong>Member Since:</strong> {{ user.date_joined|date:"F d, Y" }}</p>
+          <p><strong>Last Login:</strong> {{ user.last_login|date:"F d, Y \a\t H:i" }}</p>
+        </div>
+        <div class="col-md-4">
+          <h5>Address Information</h5>
+          {% with address=addresses|first %}
+          <p><strong>Full Name:</strong> {{ address.full_name|default:"Not set" }}</p>
+          <p><strong>Phone:</strong> {{ address.phone|default:"Not set" }}</p>
+          <p><strong>Address:</strong> {{ address.address_line|default:"Not set" }}</p>
+          <p><strong>City:</strong> {{ address.city|default:"Not set" }}</p>
+          <p><strong>Emirate:</strong> {{ address.state|default:"Not set" }}</p>
+          <p><strong>Postal Code:</strong> {{ address.postal_code|default:"Not set" }}</p>
+          <p><strong>Country:</strong> {{ address.country|default:"Not set" }}</p>
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Summary -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="llaccount-summary-card">
+          <h4 class="text-primary">{{ orders|length }}</h4>
+          <p>Total Orders</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="llaccount-summary-card">
+          <h4 class="text-success">{{ wishlist_products|length }}</h4>
+          <p>Wishlist Items</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="llaccount-summary-card">
+          <h4 class="text-info">{{ addresses|length }}</h4>
+          <p>Saved Addresses</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button class="llaccount-view-btn" onclick="toggleProfileEdit(true)">
+        Edit Details
+      </button>
+    </div>
+  </div>
+
+  <!-- EDIT MODE -->
+  <form method="POST" id="profileEdit" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="update_profile" value="1">
+
+    <div class="llaccount-form-row">
+      <input class="llaccount-form-input" name="first_name" value="{{ user.first_name }}" placeholder="First Name">
+      <input class="llaccount-form-input" name="last_name" value="{{ user.last_name }}" placeholder="Last Name">
+    </div>
+
+    <input class="llaccount-form-input" value="{{ user.email }}" disabled>
+
+    {% with address=addresses|first %}
+    <input class="llaccount-form-input" name="phone" value="{{ address.phone }}" placeholder="+971 XX XXX XXXX">
+
+    <input class="llaccount-form-input" name="full_name" value="{{ address.full_name }}" placeholder="Full Name">
+
+    <textarea class="llaccount-form-input" name="address_line" placeholder="House, Street, Area">{{ address.address_line }}</textarea>
+
+    <div class="llaccount-form-row">
+      <input class="llaccount-form-input" name="city" value="{{ address.city }}" placeholder="e.g., Dubai, Abu Dhabi">
+      <select name="state" class="llaccount-form-input">
+        <option value="">Select Emirate</option>
+        <option value="Abu Dhabi" {% if address.state == 'Abu Dhabi' %}selected{% endif %}>Abu Dhabi</option>
+        <option value="Dubai" {% if address.state == 'Dubai' %}selected{% endif %}>Dubai</option>
+        <option value="Sharjah" {% if address.state == 'Sharjah' %}selected{% endif %}>Sharjah</option>
+        <option value="Ajman" {% if address.state == 'Ajman' %}selected{% endif %}>Ajman</option>
+        <option value="Fujairah" {% if address.state == 'Fujairah' %}selected{% endif %}>Fujairah</option>
+        <option value="Ras Al Khaimah" {% if address.state == 'Ras Al Khaimah' %}selected{% endif %}>Ras Al Khaimah</option>
+        <option value="Umm Al Quwain" {% if address.state == 'Umm Al Quwain' %}selected{% endif %}>Umm Al Quwain</option>
+      </select>
+    </div>
+
+    <div class="llaccount-form-row">
+      <input class="llaccount-form-input" name="postal_code" value="{{ address.postal_code }}" placeholder="Postal Code">
+      <input class="llaccount-form-input" name="country" value="{{ address.country }}" placeholder="Country">
+    </div>
+    {% endwith %}
+
+    <button type="submit" class="llaccount-save-btn">
+      Save Changes
+    </button>
+  </form>
+</div>
+
+
+
+          <!-- ================= ORDERS ================= -->
+          <div class="llaccount-form-section" id="ordersSection">
+            <!-- Order Status Tabs -->
+            <div class="llaccount-tabs">
+              <a href="#" class="llaccount-tab active" onclick="showOrderTab('processing', event)">Processing & Return</a>
+              <a href="#" class="llaccount-tab" onclick="showOrderTab('cancelled', event)">Cancelled</a>
+              <a href="#" class="llaccount-tab" onclick="showOrderTab('delivered', event)">Delivered</a>
+            </div>
+
+            <!-- Processing & Return Orders -->
+            <div class="llaccount-order-tab active" id="processingOrders">
+              <h4 class="mb-3">Processing & Return Orders</h4>
+              {% for order in orders %}
+                {% if order.status == 'processing' or order.status == 'shipped' or order.status == 'returned' %}
+                <div class="llaccount-order-item">
+                  <div class="llaccount-order-left">
+                    <div class="llaccount-order-number">
+                      Order #{{ order.order_number }}
+                    </div>
+                    <div class="llaccount-order-date">
+                      {{ order.created_at|date:"F d, Y" }}
+                    </div>
+                  </div>
+
+                  <span class="llaccount-order-status {{ order.status }}">
+                    {{ order.get_status_display }}
+                  </span>
+
+                  <div class="llaccount-order-price">
+                    AED {{ order.total_amount }}
+                  </div>
+
+                  <div class="llaccount-order-items">
+                    {{ order.items.count }} Items
+                  </div>
+
+                  <a href="{% url 'order_detail' order.id %}" class="llaccount-view-btn">
+                    View Details
+                  </a>
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            <!-- Cancelled Orders -->
+            <div class="llaccount-order-tab" id="cancelledOrders">
+              <h4 class="mb-3">Cancelled Orders</h4>
+              {% for order in orders %}
+                {% if order.status == 'cancelled' %}
+                <div class="llaccount-order-item">
+                  <div class="llaccount-order-left">
+                    <div class="llaccount-order-number">
+                      Order #{{ order.order_number }}
+                    </div>
+                    <div class="llaccount-order-date">
+                      {{ order.created_at|date:"F d, Y" }}
+                    </div>
+                  </div>
+
+                  <span class="llaccount-order-status {{ order.status }}">
+                    {{ order.get_status_display }}
+                  </span>
+
+                  <div class="llaccount-order-price">
+                    AED {{ order.total_amount }}
+                  </div>
+
+                  <div class="llaccount-order-items">
+                    {{ order.items.count }} Items
+                  </div>
+
+                  <a href="{% url 'order_detail' order.id %}" class="llaccount-view-btn">
+                    View Details
+                  </a>
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            <!-- Delivered Orders -->
+            <div class="llaccount-order-tab" id="deliveredOrders">
+              <h4 class="mb-3">Delivered Orders</h4>
+              {% for order in orders %}
+                {% if order.status == 'delivered' %}
+                <div class="llaccount-order-item">
+                  <div class="llaccount-order-left">
+                    <div class="llaccount-order-number">
+                      Order #{{ order.order_number }}
+                    </div>
+                    <div class="llaccount-order-date">
+                      {{ order.created_at|date:"F d, Y" }}
+                    </div>
+                  </div>
+
+                  <span class="llaccount-order-status {{ order.status }}">
+                    {{ order.get_status_display }}
+                  </span>
+
+                  <div class="llaccount-order-price">
+                    AED {{ order.total_amount }}
+                  </div>
+
+                  <div class="llaccount-order-items">
+                    {{ order.items.count }} Items
+                  </div>
+
+                  <a href="{% url 'order_detail' order.id %}" class="llaccount-view-btn">
+                    View Details
+                  </a>
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- ================= WISHLIST ================= -->
+          <div class="llaccount-form-section" id="wishlistSection">
+            <div class="row">
+              {% for product in wishlist_products %}
+              <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                  <img src="{{ product.image_main.url }}" class="card-img-top">
+                  <div class="card-body text-center">
+                    <div style="position: relative; display: inline-block; margin-bottom: 1rem;">
+                      <i class="fas fa-heart" style="font-size: 2rem; color: #e91e63; cursor: pointer;" onclick="window.location.href='/store/wishlist/toggle/{{ product.id }}/'"></i>
+                    </div>
+                    <h6>{{ product.name }}</h6>
+                    <p>AED {{ product.price }}</p>
+                    <a href="{{ product.get_absolute_url }}" class="llaccount-view-btn">
+                      View
+                    </a>
+                  </div>
+                </div>
+              </div>
+              {% empty %}
+              <p class="text-muted text-center">Wishlist is empty.</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- ================= ADDRESSES ================= -->
+          <div class="llaccount-form-section" id="addressesSection">
+            {% for address in addresses %}
+            <div class="llaccount-order-item">
+              <div class="llaccount-order-left">
+                <div class="llaccount-order-number">
+                  {{ address.full_name }}
+                </div>
+                <div class="llaccount-order-date">
+                  {{ address.phone }}
+                </div>
+                <div style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
+                  {{ address.address_line }}<br>
+                  {{ address.city }}, {{ address.state }} {{ address.postal_code }}<br>
+                  {{ address.country }}
+                </div>
+              </div>
+
+              {% if address.is_default %}
+              <span class="llaccount-order-status delivered">
+                Default
+              </span>
+              {% endif %}
+
+              <a href="{% url 'remove_address' address.id %}" class="llaccount-view-btn" onclick="return confirm('Are you sure you want to remove this address?')">
+                Remove
+              </a>
+            </div>
+            {% empty %}
+            <p class="text-muted text-center">No addresses saved yet.</p>
+            {% endfor %}
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= JS ================= -->
+<script>
+function showTab(tab, event) {
+  event.preventDefault();
+
+  document.querySelectorAll('.llaccount-menu-link').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  document.querySelectorAll('.llaccount-form-section').forEach(el => el.classList.remove('active'));
+
+  if (tab === 'overview') document.getElementById('overviewSection').classList.add('active');
+  if (tab === 'orders') document.getElementById('ordersSection').classList.add('active');
+  if (tab === 'addresses') document.getElementById('addressesSection').classList.add('active');
+  if (tab === 'wishlist') document.getElementById('wishlistSection').classList.add('active');
+}
+
+function toggleProfileEdit(edit) {
+  const view = document.getElementById('profileView');
+  const form = document.getElementById('profileEdit');
+
+  if (edit) {
+    view.style.display = 'none';
+    form.style.display = 'block';
+  } else {
+    view.style.display = 'block';
+    form.style.display = 'none';
+  }
+}
+
+function showOrderTab(tab, event) {
+  event.preventDefault();
+
+  // Remove active class from all order tabs
+  document.querySelectorAll('.llaccount-tab').forEach(el => el.classList.remove('active'));
+  // Add active class to clicked tab
+  event.currentTarget.classList.add('active');
+
+  // Hide all order tab content
+  document.querySelectorAll('.llaccount-order-tab').forEach(el => el.classList.remove('active'));
+
+  // Show selected tab content
+  if (tab === 'processing') document.getElementById('processingOrders').classList.add('active');
+  if (tab === 'cancelled') document.getElementById('cancelledOrders').classList.add('active');
+  if (tab === 'delivered') document.getElementById('deliveredOrders').classList.add('active');
+}
+
+// Handle URL hash on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const hash = window.location.hash;
+  if (hash === '#ordersSection') {
+    // Activate orders tab
+    document.querySelectorAll('.llaccount-menu-link').forEach(el => el.classList.remove('active'));
+    document.querySelector('[onclick*="orders"]').classList.add('active');
+    
+    document.querySelectorAll('.llaccount-form-section').forEach(el => el.classList.remove('active'));
+    document.getElementById('ordersSection').classList.add('active');
+  } else if (hash === '#addressesSection') {
+    // Activate addresses tab
+    document.querySelectorAll('.llaccount-menu-link').forEach(el => el.classList.remove('active'));
+    document.querySelector('[onclick*="addresses"]').classList.add('active');
+    
+    document.querySelectorAll('.llaccount-form-section').forEach(el => el.classList.remove('active'));
+    document.getElementById('addressesSection').classList.add('active');
+  } else if (hash === '#wishlistSection') {
+    // Activate wishlist tab
+    document.querySelectorAll('.llaccount-menu-link').forEach(el => el.classList.remove('active'));
+    document.querySelector('[onclick*="wishlist"]').classList.add('active');
+    
+    document.querySelectorAll('.llaccount-form-section').forEach(el => el.classList.remove('active'));
+    document.getElementById('wishlistSection').classList.add('active');
+  }
+  // Default to overview if no hash or invalid hash
+});
+</script>
+
+{% endblock %}

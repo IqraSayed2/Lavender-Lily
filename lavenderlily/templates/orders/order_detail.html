@@ -1,0 +1,337 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% block title %}Order {{ order.order_number }}{% endblock %} 
+{% block content %}
+
+<!-- Progress Steps -->
+<div class="llcheckout-progress">
+  <div class="container">
+    <div class="llcheckout-steps">
+      <div class="llcheckout-step completed">
+        <div class="llcheckout-step-line"></div>
+        <div class="llcheckout-step-circle">
+          <i class="fas fa-check"></i>
+        </div>
+        <div class="llcheckout-step-label">Purchase</div>
+      </div>
+      <div class="llcheckout-step completed">
+        <div class="llcheckout-step-line"></div>
+        <div class="llcheckout-step-circle">
+          <i class="fas fa-check"></i>
+        </div>
+        <div class="llcheckout-step-label">Information</div>
+      </div>
+      <div class="llcheckout-step completed">
+        <div class="llcheckout-step-line"></div>
+        <div class="llcheckout-step-circle">
+          <i class="fas fa-check"></i>
+        </div>
+        <div class="llcheckout-step-label">Payment</div>
+      </div>
+      {% if order.status == 'processing' %}
+      <div class="llcheckout-step active">
+        <div class="llcheckout-step-line"></div>
+        <div class="llcheckout-step-circle">4</div>
+        <div class="llcheckout-step-label">Confirmation</div>
+      </div>
+      <div class="llcheckout-step">
+        <div class="llcheckout-step-circle">5</div>
+        <div class="llcheckout-step-label">Delivered</div>
+      </div>
+      {% elif order.status == 'delivered' %}
+      <div class="llcheckout-step completed">
+        <div class="llcheckout-step-line"></div>
+        <div class="llcheckout-step-circle">
+          <i class="fas fa-check"></i>
+        </div>
+        <div class="llcheckout-step-label">Confirmation</div>
+      </div>
+      <div class="llcheckout-step completed">
+        <div class="llcheckout-step-circle">
+          <i class="fas fa-check"></i>
+        </div>
+        <div class="llcheckout-step-label">Delivered</div>
+      </div>
+      {% elif order.status == 'cancelled' %}
+      <div class="llcheckout-step cancelled">
+        <div class="llcheckout-step-circle">
+          <i class="fas fa-times"></i>
+        </div>
+        <div class="llcheckout-step-label">Cancelled</div>
+      </div>
+      {% else %}
+      <div class="llcheckout-step active">
+        <div class="llcheckout-step-circle">4</div>
+        <div class="llcheckout-step-label">Confirmation</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<section class="llorder-detail-section">
+  <div class="llorder-detail-container">
+    <!-- Order Header -->
+    <div class="llorder-detail-header">
+      <h1 class="llorder-detail-title">Order {{ order.order_number }}</h1>
+
+      <div class="llorder-detail-meta">
+        <div class="llorder-detail-meta-item">
+          <div class="llorder-detail-meta-label">Order Date</div>
+          <div class="llorder-detail-meta-value">
+            {{ order.created_at|date:"F d, Y" }}
+          </div>
+        </div>
+
+        <div class="llorder-detail-meta-item">
+          <div class="llorder-detail-meta-label">Status</div>
+          <div class="llorder-detail-meta-value">
+            {{ order.get_status_display }}
+          </div>
+        </div>
+
+        <div class="llorder-detail-meta-item">
+          <div class="llorder-detail-meta-label">Payment Method</div>
+          <div class="llorder-detail-meta-value">
+            {{ order.payment_method }}
+          </div>
+        </div>
+
+        <div class="llorder-detail-meta-item">
+          <div class="llorder-detail-meta-label">Payment Status</div>
+          <div class="llorder-detail-meta-value">
+            {% if order.is_paid %}Paid{% else %}Pending{% endif %}
+          </div>
+        </div>
+
+        {% if order.cancel_requested %}
+        <div class="llorder-detail-meta-item">
+          <div class="llorder-detail-meta-label">Cancellation</div>
+          <div class="llorder-detail-meta-value">
+            Requested on {{ order.cancel_date|date:"M d, Y" }} {% if order.cancel_reason %}<br />Reason: {{ order.cancel_reason }}{% endif %}
+          </div>
+        </div>
+        {% endif %} {% if order.return_requested %}
+        <div class="llorder-detail-meta-item">
+          <div class="llorder-detail-meta-label">Return</div>
+          <div class="llorder-detail-meta-value">
+            Requested on {{ order.return_date|date:"M d, Y" }} {% if order.return_reason %}<br />Reason: {{ order.return_reason }}{% endif %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Shipping Address -->
+    {% if order.shipping_address %}
+    <div class="llorder-detail-address">
+      <h2 class="llorder-detail-address-title">Shipping Address</h2>
+      <div class="llorder-detail-address-content">
+        <strong>{{ order.shipping_address.full_name }}</strong><br />
+        {{ order.shipping_address.address_line }}<br />
+        {{ order.shipping_address.city }}, {{ order.shipping_address.state }} {{order.shipping_address.postal_code }}<br />
+        {{ order.shipping_address.country }}<br />
+        Phone: {{ order.shipping_address.phone }}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Order Items -->
+    <div class="llorder-items-section">
+      <h2 class="llorder-items-title">Order Items</h2>
+
+      {% for item in order.items.all %}
+      <div class="llorder-item">
+        <img
+          src="{{ item.product.image_main.url }}"
+          alt="{{ item.product.name }}"
+          class="llorder-item-image"
+        />
+
+        <div class="llorder-item-details">
+          <div class="llorder-item-name">{{ item.product.name }}</div>
+          <div class="llorder-item-meta">
+            Category: {{ item.product.category }} | Color: {{ item.product.color }}
+          </div>
+          <div class="llorder-item-description">
+            {{ item.product.description }}
+          </div>
+
+          <div class="llorder-item-product-details">
+            {% if item.product.sku %}
+            <div class="llorder-item-detail">
+              <span class="llorder-item-detail-label">SKU:</span>
+              <span class="llorder-item-detail-value"
+                >{{ item.product.sku }}</span
+              >
+            </div>
+            {% endif %} {% if item.product.material %}
+            <div class="llorder-item-detail">
+              <span class="llorder-item-detail-label">Material:</span>
+              <span class="llorder-item-detail-value"
+                >{{ item.product.material }}</span
+              >
+            </div>
+            {% endif %} {% if item.product.care %}
+            <div class="llorder-item-detail">
+              <span class="llorder-item-detail-label">Care:</span>
+              <span class="llorder-item-detail-value"
+                >{{ item.product.care }}</span
+              >
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="llorder-item-quantity-price">
+            <div class="llorder-item-quantity">
+              Quantity: {{ item.quantity }}
+            </div>
+            <div class="llorder-item-price">AED {{ item.subtotal }}</div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Order Summary -->
+    <div class="llorder-summary">
+      <h2 class="llorder-summary-title">Order Summary</h2>
+
+      {% for item in order.items.all %}
+      <div class="llorder-summary-row">
+        <span class="llorder-summary-label"
+          >{{ item.product.name }} × {{ item.quantity }}</span
+        >
+        <span class="llorder-summary-value">AED {{ item.subtotal }}</span>
+      </div>
+      {% endfor %}
+
+      <div class="llorder-summary-total">
+        <div class="llorder-summary-row">
+          <span class="llorder-summary-label">Total</span>
+          <span class="llorder-summary-value"
+            >AED {{ order.total_amount }}</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Actions -->
+    {% if order.status == 'processing' and not order.cancel_requested %}
+    <div class="llorder-actions">
+      <button
+        type="button"
+        class="llorder-action-btn llorder-cancel-btn"
+        onclick="showCancelModal()"
+      >
+        Cancel Order
+      </button>
+    </div>
+    {% elif order.status == 'delivered' and not order.return_requested %}
+    <div class="llorder-actions">
+      <button
+        type="button"
+        class="llorder-action-btn llorder-return-btn"
+        onclick="showReturnModal()"
+      >
+        Request Return
+      </button>
+    </div>
+    {% endif %}
+
+    <!-- Cancel Modal -->
+    <div id="cancelModal" class="llorder-modal">
+      <div class="llorder-modal-content">
+        <div class="llorder-modal-header">
+          <h3>Cancel Order</h3>
+          <span class="llorder-modal-close" onclick="closeModal('cancelModal')"
+            >&times;</span
+          >
+        </div>
+        <form method="post" action="{% url 'cancel_order' order.pk %}">
+          {% csrf_token %}
+          <div class="llorder-modal-body">
+            <p>
+              Are you sure you want to cancel this order? This action cannot be
+              undone.
+            </p>
+            <label for="cancel_reason"
+              >Reason for cancellation (optional):</label
+            >
+            <textarea
+              name="reason"
+              id="cancel_reason"
+              rows="3"
+              placeholder="Please provide a reason..."
+            ></textarea>
+          </div>
+          <div class="llorder-modal-footer">
+            <button type="button" onclick="closeModal('cancelModal')">
+              Cancel
+            </button>
+            <button type="submit" class="llorder-confirm-btn">
+              Confirm Cancellation
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Return Modal -->
+    <div id="returnModal" class="llorder-modal">
+      <div class="llorder-modal-content">
+        <div class="llorder-modal-header">
+          <h3>Request Return</h3>
+          <span class="llorder-modal-close" onclick="closeModal('returnModal')"
+            >&times;</span
+          >
+        </div>
+        <form method="post" action="{% url 'return_order' order.pk %}">
+          {% csrf_token %}
+          <div class="llorder-modal-body">
+            <p>Please provide details for your return request.</p>
+            <label for="return_reason">Reason for return:</label>
+            <textarea
+              name="reason"
+              id="return_reason"
+              rows="3"
+              placeholder="Please provide a reason..."
+              required
+            ></textarea>
+          </div>
+          <div class="llorder-modal-footer">
+            <button type="button" onclick="closeModal('returnModal')">
+              Cancel
+            </button>
+            <button type="submit" class="llorder-confirm-btn">
+              Submit Return Request
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function showCancelModal() {
+    document.getElementById("cancelModal").style.display = "flex";
+  }
+
+  function showReturnModal() {
+    document.getElementById("returnModal").style.display = "flex";
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = "none";
+  }
+
+  // Close modal when clicking outside
+  window.onclick = function (event) {
+    if (event.target.classList.contains("llorder-modal")) {
+      event.target.style.display = "none";
+    }
+  };
+</script>
+
+{% endblock %}

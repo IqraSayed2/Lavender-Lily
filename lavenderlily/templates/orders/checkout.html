@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Checkout - Lavender Lily{% endblock %}
+
+{% block content %}
+
+  <!-- Progress Steps -->
+  <div class="llcheckout-progress">
+    <div class="container">
+      <div class="llcheckout-steps">
+        <div class="llcheckout-step completed">
+          <div class="llcheckout-step-line"></div>
+          <div class="llcheckout-step-circle">
+            <i class="fas fa-check"></i>
+          </div>
+          <div class="llcheckout-step-label">
+            {% if buy_now %}Product{% else %}Cart{% endif %}
+          </div>
+        </div>
+        <div class="llcheckout-step active">
+          <div class="llcheckout-step-line"></div>
+          <div class="llcheckout-step-circle">2</div>
+          <div class="llcheckout-step-label">Information</div>
+        </div>
+        <div class="llcheckout-step">
+          <div class="llcheckout-step-line"></div>
+          <div class="llcheckout-step-circle">3</div>
+          <div class="llcheckout-step-label">Payment</div>
+        </div>
+        <div class="llcheckout-step">
+          <div class="llcheckout-step-line"></div>
+          <div class="llcheckout-step-circle">4</div>
+          <div class="llcheckout-step-label">Confirmation</div>
+        </div>
+        <div class="llcheckout-step">
+          <div class="llcheckout-step-circle">5</div>
+          <div class="llcheckout-step-label">Delivered</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<section class="llcheckout-section">
+  <div class="llcheckout-container">
+    <div class="row">
+
+      <!-- ================= LEFT COLUMN ================= -->
+      <div class="col-lg-7">
+
+        <form method="POST">
+          {% csrf_token %}
+
+          <!-- CONTACT INFO -->
+          <div class="llcheckout-form-card">
+            <h2 class="llcheckout-section-title">
+              <span class="llcheckout-section-number">1</span>
+              Contact Information
+            </h2>
+
+            <div class="llcheckout-form-group">
+              <label class="llcheckout-form-label">Email</label>
+              <input
+                type="email"
+                class="llcheckout-form-input"
+                value="{{ user.email }}"
+                disabled
+              />
+            </div>
+
+            <div class="llcheckout-form-group">
+              <label class="llcheckout-form-label">Phone</label>
+              <input
+                type="text"
+                name="phone"
+                class="llcheckout-form-input"
+                placeholder="+971 XX XXX XXXX"
+                value="{{ default_address.phone|default:'' }}"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- SHIPPING ADDRESS -->
+          <div class="llcheckout-form-card">
+            <h2 class="llcheckout-section-title">
+              <span class="llcheckout-section-number">2</span>
+              Shipping Address
+            </h2>
+
+            <div class="llcheckout-form-group">
+              <label class="llcheckout-form-label">Full Name</label>
+              <input
+                type="text"
+                name="full_name"
+                class="llcheckout-form-input"
+                placeholder="Full name"
+                value="{{ default_address.full_name|default:'' }}"
+                required
+              />
+            </div>
+
+            <div class="llcheckout-form-group">
+              <label class="llcheckout-form-label">Address</label>
+              <textarea
+                name="address"
+                class="llcheckout-form-input"
+                placeholder="House, Street, Area"
+                required
+              >{{ default_address.address_line|default:'' }}</textarea>
+            </div>
+
+            <div class="llcheckout-form-row">
+              <div class="llcheckout-form-group">
+                <label class="llcheckout-form-label">City</label>
+                <input
+                  type="text"
+                  name="city"
+                  class="llcheckout-form-input"
+                  placeholder="e.g., Dubai, Abu Dhabi"
+                  value="{{ default_address.city|default:'' }}"
+                  required
+                />
+              </div>
+
+              <div class="llcheckout-form-group">
+                <label class="llcheckout-form-label">Emirate</label>
+                <select name="state" class="llcheckout-form-select" required>
+                  <option value="">Select Emirate</option>
+                  <option value="Abu Dhabi" {% if default_address.state == 'Abu Dhabi' %}selected{% endif %}>Abu Dhabi</option>
+                  <option value="Dubai" {% if default_address.state == 'Dubai' %}selected{% endif %}>Dubai</option>
+                  <option value="Sharjah" {% if default_address.state == 'Sharjah' %}selected{% endif %}>Sharjah</option>
+                  <option value="Ajman" {% if default_address.state == 'Ajman' %}selected{% endif %}>Ajman</option>
+                  <option value="Fujairah" {% if default_address.state == 'Fujairah' %}selected{% endif %}>Fujairah</option>
+                  <option value="Ras Al Khaimah" {% if default_address.state == 'Ras Al Khaimah' %}selected{% endif %}>Ras Al Khaimah</option>
+                  <option value="Umm Al Quwain" {% if default_address.state == 'Umm Al Quwain' %}selected{% endif %}>Umm Al Quwain</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="llcheckout-form-row">
+              <div class="llcheckout-form-group">
+                <label class="llcheckout-form-label">Postal Code</label>
+                <input
+                  type="text"
+                  name="postal_code"
+                  class="llcheckout-form-input"
+                  value="{{ default_address.postal_code|default:'' }}"
+                  required
+                />
+              </div>
+
+              <div class="llcheckout-form-group">
+                <label class="llcheckout-form-label">Country</label>
+                <input
+                  type="text"
+                  name="country"
+                  class="llcheckout-form-input"
+                  value="{{ default_address.country|default:'United Arab Emirates' }}"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- PAYMENT -->
+          <div class="llcheckout-form-card">
+            <h2 class="llcheckout-section-title">
+              <span class="llcheckout-section-number">3</span>
+              Payment Method
+            </h2>
+
+            <div class="llcheckout-payment-methods">
+              <div class="llcheckout-payment-method selected" data-method="Razorpay">
+                <i class="fab fa-cc-visa"></i>
+                <div class="llcheckout-payment-method-name">
+                  Razorpay
+                </div>
+              </div>
+            </div>
+
+            <input type="hidden" name="payment_method" value="Razorpay" id="payment_method" />
+          </div>
+
+          <button type="submit" class="llcheckout-place-order-btn">
+            Place Order
+          </button>
+
+        </form>
+
+      </div>
+
+      <!-- ================= RIGHT COLUMN ================= -->
+      <div class="col-lg-5">
+        <div class="llcheckout-summary-card">
+          <h3 class="llcheckout-summary-title">Order Summary</h3>
+
+          {% for item in cart_items %}
+          <div class="llcheckout-summary-item">
+            <img
+              src="{{ item.product.image_main.url }}"
+              class="llcheckout-summary-image"
+            />
+            <div class="llcheckout-summary-details">
+              <div class="llcheckout-summary-name">
+                {{ item.product.name }}
+              </div>
+              <div class="llcheckout-summary-meta">
+                Qty: {{ item.qty }}
+              </div>
+              <div class="llcheckout-summary-price">
+                AED {{ item.subtotal }}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+
+          <div class="llcheckout-summary-row">
+            <span class="llcheckout-summary-label">Subtotal</span>
+            <span class="llcheckout-summary-value">AED {{ subtotal|floatformat:2 }}</span>
+          </div>
+
+          <div class="llcheckout-summary-row">
+            <span class="llcheckout-summary-label">Shipping</span>
+            <span class="llcheckout-summary-value">
+              {% if shipping == 0 %}FREE{% else %}AED {{ shipping|floatformat:2 }}{% endif %}
+            </span>
+          </div>
+
+          <div class="llcheckout-summary-row">
+            <span class="llcheckout-summary-label">VAT (5%)</span>
+            <span class="llcheckout-summary-value">AED {{ tax|floatformat:2 }}</span>
+          </div>
+
+          <div class="llcheckout-summary-total">
+            <span class="llcheckout-summary-total-label">Total</span>
+            <span class="llcheckout-summary-total-value">
+              AED {{ total|floatformat:2 }}
+            </span>
+          </div>
+
+          <div class="llcheckout-secure-text">
+            <i class="fas fa-lock"></i>
+            Secure Checkout
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  // Payment method selection
+  document.querySelectorAll('.llcheckout-payment-method').forEach(method => {
+    method.addEventListener('click', function() {
+      document.querySelectorAll('.llcheckout-payment-method').forEach(m => m.classList.remove('selected'));
+      this.classList.add('selected');
+      document.getElementById('payment_method').value = this.dataset.method;
+    });
+  });
+</script>
+
+{% endblock %}

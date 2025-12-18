@@ -1,0 +1,597 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<section class="admin-dashboard">
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-lg-3">
+        <div class="admin-dash-sidebar">
+          <div class="admin-dash-sidebar-content">
+            <div class="text-center mb-4">
+              <h5 class="mb-1">Admin Panel</h5>
+              <p class="text-muted small">Lavender Lily</p>
+            </div>
+
+            <nav class="nav flex-column">
+              <a href="#overview" class="nav-link admin-dash-navlink active mb-2" onclick="showSection('overview')">
+                <i class="fas fa-tachometer-alt me-2"></i> Overview
+              </a>
+              <a href="#products" class="nav-link admin-dash-navlink mb-2" onclick="showSection('products')">
+                <i class="fas fa-box me-2"></i> Products
+              </a>
+              <a href="#orders" class="nav-link admin-dash-navlink mb-2" onclick="showSection('orders')">
+                <i class="fas fa-shopping-cart me-2"></i> Orders
+              </a>
+              <a href="#users" class="nav-link admin-dash-navlink mb-2" onclick="showSection('users')">
+                <i class="fas fa-users me-2"></i> Users
+              </a>
+              <a href="#newsletter" class="nav-link admin-dash-navlink mb-2" onclick="showSection('newsletter')">
+                <i class="fas fa-envelope me-2"></i> Newsletter
+              </a>
+              <a href="#messages" class="nav-link admin-dash-navlink mb-2" onclick="showSection('messages')">
+                <i class="fas fa-comments me-2"></i> Messages
+              </a>
+              <a href="#settings" class="nav-link admin-dash-navlink mb-2" onclick="showSection('settings')">
+                <i class="fas fa-cog me-2"></i> Settings
+              </a>
+              <hr class="my-3">
+              <a href="/admin/" class="nav-link admin-dash-navlink" target="_blank">
+                <i class="fas fa-external-link-alt me-2"></i> Django Admin
+              </a>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="col-lg-9">
+        <!-- Overview Section -->
+        <div id="overview-section" class="admin-page-section active">
+          <div class="admin-dash-header">
+                <button class="admin-dash-menu-toggle d-lg-none" onclick="toggleSidebar()">
+                  <i class="fas fa-bars"></i>
+                </button>
+                <h1><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h1>
+                <p>Welcome back, {{ user.get_full_name|default:user.username }}</p>
+              </div>
+                     
+
+            <!-- Statistics Cards -->
+            <div class="row mb-5">
+              <div class="col-lg-3 col-md-6 col-sm-12 mb-4">
+                <div class="admin-dash-formcard h-100">
+                  <div class="admin-dash-formbody text-center">
+                    <div class="mb-3">
+                      <i class="fas fa-box fa-3x text-primary"></i>
+                    </div>
+                    <h3 class="mb-2">{{ total_products }}</h3>
+                    <p class="text-muted mb-0">Total Products</p>
+                    <div class="mt-3">
+                      <small class="{% if product_growth_percentage >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        <i class="fas fa-arrow-{% if product_growth_percentage >= 0 %}up{% else %}down{% endif %} me-1"></i>
+                        {% if product_growth_percentage >= 0 %}+{% endif %}{{ product_growth_percentage|floatformat:0 }}% this month
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-3 col-md-6 col-sm-12 mb-4">
+                <div class="admin-dash-formcard h-100">
+                  <div class="admin-dash-formbody text-center">
+                    <div class="mb-3">
+                      <i class="fas fa-shopping-cart fa-3x text-success"></i>
+                    </div>
+                    <h3 class="mb-2">{{ total_orders }}</h3>
+                    <p class="text-muted mb-0">Total Orders</p>
+                    <div class="mt-3">
+                      <small class="text-warning">
+                        <i class="fas fa-clock me-1"></i>{{ pending_orders }} pending
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-3 col-md-6 col-sm-12 mb-4">
+                <div class="admin-dash-formcard h-100">
+                  <div class="admin-dash-formbody text-center">
+                    <div class="mb-3">
+                      <i class="fas fa-users fa-3x text-info"></i>
+                    </div>
+                    <h3 class="mb-2">{{ total_users }}</h3>
+                    <p class="text-muted mb-0">Total Users</p>
+                    <div class="mt-3">
+                      <small class="text-primary">
+                        <i class="fas fa-user-shield me-1"></i>{{ staff_users }} staff
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-3 col-md-6 col-sm-12 mb-4">
+                <div class="admin-dash-formcard h-100">
+                  <div class="admin-dash-formbody text-center">
+                    <div class="mb-3">
+                      <i class="fas fa-envelope fa-3x text-warning"></i>
+                    </div>
+                    <h3 class="mb-2">{{ total_subscribers }}</h3>
+                    <p class="text-muted mb-0">Subscribers</p>
+                    <div class="mt-3">
+                      <small class="text-info">
+                        <i class="fas fa-paper-plane me-1"></i>{{ sent_newsletters }} sent
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mb-5">
+              <div class="col-12">
+                <div class="admin-dash-formcard">
+                  <div class="admin-dash-formheader">
+                    <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                  </div>
+                  <div class="admin-dash-formbody">
+                    <div class="row g-4">
+                      <div class="col-lg-2 col-md-3 col-sm-6">
+                        <a href="{% url 'add_product' %}" class="admin-dash-action-btn w-100 d-flex flex-column align-items-center py-4 px-3">
+                          <i class="fas fa-plus fa-2x mb-3"></i>
+                          <span class="text-center">Add Product</span>
+                        </a>
+                      </div>
+                      <div class="col-lg-2 col-md-3 col-sm-6">
+                        <a href="{% url 'manage_newsletters' %}" class="admin-dash-action-btn w-100 d-flex flex-column align-items-center py-4 px-3">
+                          <i class="fas fa-envelope fa-2x mb-3"></i>
+                          <span class="text-center">Send Newsletter</span>
+                        </a>
+                      </div>
+                      <div class="col-lg-2 col-md-3 col-sm-6">
+                        <a href="{% url 'manage_homepage' %}" class="admin-dash-action-btn w-100 d-flex flex-column align-items-center py-4 px-3">
+                          <i class="fas fa-edit fa-2x mb-3"></i>
+                          <span class="text-center">Edit Homepage</span>
+                        </a>
+                      </div>
+                      <div class="col-lg-2 col-md-3 col-sm-6">
+                        <a href="{% url 'manage_orders' %}" class="admin-dash-action-btn w-100 d-flex flex-column align-items-center py-4 px-3">
+                          <i class="fas fa-list fa-2x mb-3"></i>
+                          <span class="text-center">View Orders</span>
+                        </a>
+                      </div>
+                      <div class="col-lg-2 col-md-3 col-sm-6">
+                        <a href="{% url 'manage_messages' %}" class="admin-dash-action-btn w-100 d-flex flex-column align-items-center py-4 px-3">
+                          <i class="fas fa-comments fa-2x mb-3"></i>
+                          <span class="text-center">View Messages</span>
+                        </a>
+                      </div>
+                      <div class="col-lg-2 col-md-3 col-sm-6">
+                        <a href="{% url 'manage_users' %}" class="admin-dash-action-btn w-100 d-flex flex-column align-items-center py-4 px-3">
+                          <i class="fas fa-user-cog fa-2x mb-3"></i>
+                          <span class="text-center">Manage Users</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Orders and Status -->
+            <div class="row">
+              <div class="col-lg-8 col-md-12 mb-4">
+                <div class="admin-dash-formcard h-100">
+                  <div class="admin-dash-formheader d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-shopping-cart me-2" style="color:white"></i>Recent Orders</h5>
+                    <a href="{% url 'manage_orders' %}" target="_blank" class="admin-dash-action-btn btn-sm">
+                      <i class="fas fa-external-link-alt me-1"></i>View All
+                    </a>
+                  </div>
+                  <div class="admin-dash-formbody">
+                    {% if recent_orders %}
+                    <div class="orders-list">
+                      {% for order in recent_orders %}
+                      <div class="admin-dash-orderitem d-flex justify-content-between align-items-center p-3 mb-3 rounded">
+                        <div class="d-flex align-items-center">
+                          <div class="admin-dash-orderavatar me-3">
+                            <i class="fas fa-shopping-bag fa-lg"></i>
+                          </div>
+                          <div>
+                            <strong class="d-block">Order #{{ order.order_number }}</strong>
+                            <small class="text-muted">{{ order.user.get_full_name|default:order.user.username }}</small>
+                          </div>
+                        </div>
+                        <div class="text-end">
+                          <span class="badge {% if order.status == 'pending' %}bg-warning{% elif order.status == 'shipped' %}bg-info{% elif order.status == 'delivered' %}bg-success{% elif order.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %} mb-2 d-block">{{ order.get_status_display }}</span>
+                          <small class="text-muted d-block">{{ order.created_at|date:"M d, H:i" }}</small>
+                          <strong class="text-dark">AED {{ order.total_amount }}</strong>
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                      <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                      <p class="text-muted">No recent orders</p>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-4 col-md-12 mb-4">
+                <div class="admin-dash-formcard h-100">
+                  <div class="admin-dash-formheader">
+                    <h5><i class="fas fa-chart-pie me-2"></i>Order Status</h5>
+                  </div>
+                  <div class="admin-dash-formbody">
+                    <div class="status-grid">
+                      <div class="admin-dash-statusitem d-flex justify-content-between align-items-center p-3 mb-3 bg-light rounded">
+                        <div class="d-flex align-items-center">
+                          <i class="fas fa-clock text-warning me-3 fa-lg"></i>
+                          <span>Processing</span>
+                        </div>
+                        <span class="badge bg-warning fs-6">{{ pending_orders }}</span>
+                      </div>
+                      <div class="admin-dash-statusitem d-flex justify-content-between align-items-center p-3 mb-3 bg-light rounded">
+                        <div class="d-flex align-items-center">
+                          <i class="fas fa-truck text-info me-3 fa-lg"></i>
+                          <span>Shipped</span>
+                        </div>
+                        <span class="badge bg-info fs-6">{{ shipped_orders }}</span>
+                      </div>
+                      <div class="admin-dash-statusitem d-flex justify-content-between align-items-center p-3 mb-3 bg-light rounded">
+                        <div class="d-flex align-items-center">
+                          <i class="fas fa-check-circle text-success me-3 fa-lg"></i>
+                          <span>Delivered</span>
+                        </div>
+                        <span class="badge bg-success fs-6">{{ delivered_orders }}</span>
+                      </div>
+                      <div class="admin-dash-statusitem d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                        <div class="d-flex align-items-center">
+                          <i class="fas fa-times-circle text-danger me-3 fa-lg"></i>
+                          <span>Cancelled</span>
+                        </div>
+                        <span class="badge bg-danger fs-6">{{ cancelled_orders }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- Products Section -->
+        <div id="products-section" class="admin-page-section">
+          <div class="admin-dash-header">
+            <h2>Product Management</h2>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="admin-dash-formcard">
+                <div class="admin-dash-formbody text-center">
+                  <i class="fas fa-box fa-3x text-primary mb-3"></i>
+                  <h4>{{ total_products }}</h4>
+                  <p>Total Products</p>
+                  <a href="{% url 'manage_products' %}" class="admin-dash-action-btn btn-sm">Manage Products</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="admin-dash-formcard">
+                <div class="admin-dash-formbody text-center">
+                  <i class="fas fa-tags fa-3x text-success mb-3"></i>
+                  <h4>{{ total_categories }}</h4>
+                  <p>Categories</p>
+                  <a href="{% url 'manage_categories' %}" class="admin-dash-action-btn btn-sm">Manage Categories</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="admin-dash-formcard">
+                <div class="admin-dash-formbody text-center">
+                  <i class="fas fa-palette fa-3x text-info mb-3"></i>
+                  <h4>{{ total_colors }}</h4>
+                  <p>Colors</p>
+                  <a href="{% url 'manage_colors' %}" class="admin-dash-action-btn btn-sm">Manage Colors</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="orders-section" class="admin-page-section">
+          <div class="admin-dash-header">
+            <h2>Order Management</h2>
+          </div>
+
+          <div class="admin-dash-formcard">
+            <div class="admin-dash-formheader">
+              <h5>All Orders</h5>
+              <a href="{% url 'manage_orders' %}" class="admin-dash-action-btn btn-sm">View All Orders</a>
+            </div>
+            <div class="admin-dash-formbody">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Order #</th>
+                      <th>Customer</th>
+                      <th>Status</th>
+                      <th>Total</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                      <td>{{ order.order_number }}</td>
+                      <td>{{ order.user.get_full_name|default:order.user.username }}</td>
+                      <td>
+                        <span class="badge {% if order.status == 'pending' %}bg-warning{% elif order.status == 'shipped' %}bg-info{% elif order.status == 'delivered' %}bg-success{% elif order.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">{{ order.get_status_display }}</span>
+                      </td>
+                      <td>AED {{ order.total_amount }}</td>
+                      <td>{{ order.created_at|date:"M d, Y" }}</td>
+                      <td>
+                        <a href="{% url 'order_detail' order.pk %}" class="admin-dash-action-btn btn-sm">View</a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="users-section" class="admin-page-section">
+          <div class="admin-dash-header">
+            <h2>User Management</h2>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="admin-dash-formcard">
+                <div class="admin-dash-formbody text-center">
+                  <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                  <h4>{{ total_users }}</h4>
+                  <p>Total Users</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="admin-dash-formcard">
+                <div class="admin-dash-formbody text-center">
+                  <i class="fas fa-user-check fa-3x text-success mb-3"></i>
+                  <h4>{{ active_users }}</h4>
+                  <p>Active Users</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="admin-dash-formcard">
+                <div class="admin-dash-formbody text-center">
+                  <i class="fas fa-user-shield fa-3x text-warning mb-3"></i>
+                  <h4>{{ staff_users }}</h4>
+                  <p>Staff Members</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-dash-formcard mt-4">
+            <div class="admin-dash-formheader">
+              <h5>Quick User Actions</h5>
+            </div>
+            <div class="admin-dash-formbody">
+              <a href="{% url 'manage_users' %}" class="admin-dash-action-btn me-2">Manage Users</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Newsletter Section -->
+        <div id="newsletter-section" class="admin-page-section">
+          <div class="admin-dash-header">
+            <h2>Newsletter Management</h2>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="admin-dash-formcard">
+                <div class="admin-dash-formbody text-center">
+                  <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                  <h4>{{ total_subscribers }}</h4>
+                  <p>Active Subscribers</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="admin-dash-formcard">
+                <div class="admin-dash-formbody text-center">
+                  <i class="fas fa-paper-plane fa-3x text-success mb-3"></i>
+                  <h4>{{ sent_newsletters }}</h4>
+                  <p>Newsletters Sent</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="admin-dash-formcard">
+                <div class="admin-dash-formbody text-center">
+                  <i class="fas fa-edit fa-3x text-info mb-3"></i>
+                  <h4>{{ total_newsletters }}</h4>
+                  <p>Total Newsletters</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-dash-formcard mt-4">
+            <div class="admin-dash-formheader">
+              <h5>Newsletter Actions</h5>
+            </div>
+            <div class="admin-dash-formbody">
+              <a href="{% url 'manage_newsletters' %}" class="admin-dash-action-btn me-2">Manage Newsletters</a>
+              <a href="{% url 'manage_subscribers' %}" class="admin-dash-action-btn">View Subscribers</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages Section -->
+        <div id="messages-section" class="admin-page-section">
+          <div class="admin-dash-header">
+            <h2>Contact Messages</h2>
+          </div>
+
+          <div class="admin-dash-formcard">
+            <div class="admin-dash-formheader">
+              <h5>Recent Messages</h5>
+              <span class="badge bg-danger">{{ unread_messages }} unread</span>
+            </div>
+            <div class="admin-dash-formbody">
+              {% if recent_messages %}
+              <div class="admin-dash-messages-list">
+                {% for message in recent_messages %}
+                <div class="admin-dash-message-item {% if not message.is_replied %}unread{% endif %}">
+                  <div class="admin-dash-message-header">
+                    <strong>{{ message.name }}</strong>
+                    <small class="text-muted">{{ message.created_at|date:"M d, H:i" }}</small>
+                  </div>
+                  <div class="admin-dash-message-email">{{ message.email }}</div>
+                  <div class="admin-dash-message-content">{{ message.message|truncatechars:100 }}</div>
+                  <div class="admin-dash-message-actions">
+                    <a href="{% url 'manage_messages' %}?message={{ message.pk }}" class="admin-dash-action-btn btn-sm">View</a>
+                    {% if not message.is_replied %}
+                    <span class="badge bg-warning">Unread</span>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <p class="text-muted">No messages yet</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings-section" class="admin-page-section">
+          <div class="admin-dash-header">
+            <h2>Site Settings</h2>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-6 col-md-12">
+              <div class="admin-dash-formcard">
+                <div class="admin-dash-formheader">
+                  <h5>Homepage Settings</h5>
+                </div>
+                <div class="admin-dash-formbody">
+                  <p>Customize homepage content, hero section, announcements, etc.</p>
+                  <a href="{% url 'manage_homepage' %}" class="admin-dash-action-btn">Edit Homepage</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6 col-md-12">
+              <div class="admin-dash-formcard">
+                <div class="admin-dash-formheader">
+                  <h5>Contact Page Settings</h5>
+                </div>
+                <div class="admin-dash-formbody">
+                  <p>Manage contact page content and service information.</p>
+                  <a href="{% url 'manage_contact_page' %}" class="admin-dash-action-btn">Edit Contact Page</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-lg-6 col-md-12">
+              <div class="admin-dash-formcard">
+                <div class="admin-dash-formheader">
+                  <h5>About Page Settings</h5>
+                </div>
+                <div class="admin-dash-formbody">
+                  <p>Customize about page content and features.</p>
+                  <a href="{% url 'manage_about_page' %}" class="admin-dash-action-btn">Edit About Page</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6 col-md-12">
+              <div class="admin-dash-formcard">
+                <div class="admin-dash-formheader">
+                  <h5>System Information</h5>
+                </div>
+                <div class="admin-dash-formbody">
+                  <p>Django Admin Panel for advanced system management.</p>
+                  <a href="/admin/" target="_blank" class="admin-dash-action-btn">Django Admin</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<script>
+function showSection(sectionName) {
+  // Hide all sections
+  const sections = document.querySelectorAll('.admin-page-section');
+  sections.forEach(section => section.classList.remove('active'));
+
+  // Remove active class from nav links
+  const navLinks = document.querySelectorAll('.admin-dash-navlink');
+  navLinks.forEach(link => link.classList.remove('active'));
+
+  // Show selected section
+  const targetSection = document.getElementById(sectionName + '-section');
+  if (targetSection) {
+    targetSection.classList.add('active');
+  }
+
+  // Add active class to clicked nav link
+  const clickedLink = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
+  if (clickedLink) {
+    clickedLink.classList.add('active');
+  }
+}
+
+function toggleSidebar() {
+  const sidebar = document.querySelector('.admin-dash-sidebar');
+  sidebar.classList.toggle('mobile-hidden');
+}
+
+// Show overview by default
+document.addEventListener('DOMContentLoaded', function() {
+  showSection('overview');
+
+  // Hide sidebar on mobile by default
+  if (window.innerWidth < 992) {
+    document.querySelector('.admin-dash-sidebar').classList.add('mobile-hidden');
+  }
+});
+</script>
+
+{% endblock %}

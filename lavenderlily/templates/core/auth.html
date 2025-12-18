@@ -1,0 +1,266 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% block title %} 
+{% if mode == 'signin' %}Sign In{% else %}Create Account{% endif %} {% endblock %} 
+{% block content %}
+
+<!-- SIGNUP PAGE -->
+<div
+  class="llauth-page {% if mode == 'signup' %}active{% endif %}"
+  id="signupPage"
+>
+  <div class="llauth-container">
+    <!-- Left Form -->
+
+    <div class="llauth-form-section">
+      <div class="llauth-form-container">
+        <h1 class="llauth-form-title">Create Account</h1>
+        <p class="llauth-form-subtitle">
+          Join us for a personalized shopping experience
+        </p>
+
+        <form id="signupForm" method="POST" action="">
+          {% csrf_token %}
+
+          <div class="llauth-form-row">
+            <div class="llauth-form-group">
+              <label class="llauth-form-label">First Name</label>
+              <input
+                type="text"
+                class="llauth-form-input"
+                placeholder="First name"
+                name="first_name"
+                required
+              />
+            </div>
+            <div class="llauth-form-group">
+              <label class="llauth-form-label">Last Name</label>
+              <input
+                type="text"
+                class="llauth-form-input"
+                placeholder="Last name"
+                name="last_name"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="llauth-form-group">
+            <label class="llauth-form-label">Email</label>
+            <input
+              type="email"
+              class="llauth-form-input"
+              placeholder="name@example.com"
+              name="email"
+              required
+            />
+          </div>
+
+          <div class="llauth-form-group">
+            <label class="llauth-form-label">Username</label>
+            <input
+              type="text"
+              class="llauth-form-input"
+              placeholder="Choose a username"
+              name="username"
+              required
+            />
+          </div>
+
+          <div class="llauth-form-group">
+            <label class="llauth-form-label">Password</label>
+            <input
+              type="password"
+              class="llauth-form-input"
+              placeholder="••••••••"
+              name="password"
+              required
+            />
+          </div>
+
+          <div class="llauth-checkbox-group">
+            <input
+              type="checkbox"
+              id="terms"
+              class="llauth-checkbox"
+              required
+            />
+            <label for="terms" class="llauth-checkbox-label">
+              I agree to the <a href="#">Terms of Use</a> and
+              <a href="#">Privacy Policy</a>
+            </label>
+          </div>
+
+          <button type="submit" class="llauth-submit-btn">
+            Create Account
+          </button>
+
+          <div class="llauth-switch-text">
+            Already have an account?
+            <a
+              href="{% url 'signin' %}"
+              class="llauth-switch-link"
+              >Sign In</a
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right Image -->
+    <div
+      class="llauth-image-section"
+      style="
+        background-image: url('{% if homepage.signup_image %}{{ homepage.signup_image.url }}{% else %}https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=1200&q=80{% endif %}');
+      "
+    >
+      <div class="llauth-image-overlay"></div>
+      <div class="llauth-image-content">
+        <h2 class="llauth-image-title">Join the Circle</h2>
+        <p class="llauth-image-text">
+          Experience exclusive access to new collections and events.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNIN PAGE -->
+<div
+  class="llauth-page {% if mode == 'signin' %}active{% endif %}"
+  id="signinPage"
+>
+  <div class="llauth-container">
+    <!-- Left Image -->
+    <div
+      class="llauth-image-section"
+      style="
+        background-image: url('{% if homepage.signin_image %}{{ homepage.signin_image.url }}{% else %}https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=1200&q=80{% endif %}');
+      "
+    >
+      <div class="llauth-image-overlay"></div>
+      <div class="llauth-image-content">
+        <h2 class="llauth-image-title">Welcome Back</h2>
+        <p class="llauth-image-text">
+          "Elegance is the only beauty that never fades."
+        </p>
+      </div>
+    </div>
+
+    <!-- Right Form -->
+    <div class="llauth-form-section">
+      <div class="llauth-form-container">
+        <h1 class="llauth-form-title">Sign In</h1>
+        <p class="llauth-form-subtitle">
+          Enter your details to access your account.
+        </p>
+
+        <form id="signinForm" method="POST" action="">
+          {% csrf_token %}
+          <div class="llauth-form-group">
+            <label class="llauth-form-label">Email or Username</label>
+            <input
+              type="text"
+              class="llauth-form-input"
+              placeholder="email@example.com or username"
+              name="email"
+              required
+            />
+          </div>
+
+          <div class="llauth-form-group">
+            <label class="llauth-form-label">Password</label>
+            <input
+              type="password"
+              class="llauth-form-input"
+              placeholder="••••••••"
+              name="password"
+              required
+            />
+          </div>
+
+          <div class="llauth-forgot-link">
+            <a href="#">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="llauth-submit-btn">Sign In</button>
+
+          <div class="llauth-switch-text">
+            Don't have an account?
+            <a
+              href="{% url 'signup' %}"
+              class="llauth-switch-link"
+              >Create Account</a
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Switch to Sign In page
+function switchToSignIn(event) {
+  event.preventDefault();
+  document.getElementById("signupPage").classList.remove("active");
+  document.getElementById("signinPage").classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+// Switch to Sign Up page
+function switchToSignUp(event) {
+  event.preventDefault();
+  document.getElementById("signinPage").classList.remove("active");
+  document.getElementById("signupPage").classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+// Add animations
+const style = document.createElement("style");
+style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+document.head.appendChild(style);
+
+// Input focus animations
+const inputs = document.querySelectorAll(".llauth-form-input");
+inputs.forEach((input) => {
+  input.addEventListener("focus", function () {
+    this.parentElement.style.transform = "translateY(-2px)";
+  });
+
+  input.addEventListener("blur", function () {
+    this.parentElement.style.transform = "translateY(0)";
+  });
+});
+
+// Fix for mobile keyboard issues
+inputs.forEach((input) => {
+  input.addEventListener("touchstart", function () {
+    this.focus();
+  });
+});
+
+</script>
+
+{% endblock %}

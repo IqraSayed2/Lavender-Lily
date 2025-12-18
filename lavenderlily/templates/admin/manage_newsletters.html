@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Newsletters{% endblock %}
+
+{% block content %}
+<section class="manage-newsletter">
+  <div class="container">
+    <div class="row">
+      <!-- Header -->
+      <div class="col-12">
+        <div class="manage-newsletter-header">
+          <div class="manage-newsletter-header-content">
+            <h1><i class="fas fa-newspaper"></i> Newsletter Management</h1>
+            <p>Create and send newsletters to subscribers</p>
+          </div>
+          <div class="manage-newsletter-header-actions">
+            <button type="button" class="manage-newsletter-btn-primary" onclick="showCreateForm()">
+              <i class="fas fa-plus"></i> Create Newsletter
+            </button>
+            <a href="{% url 'admin_dashboard' %}" class="manage-newsletter-back-link">
+              <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-5">
+      <div class="col-md-6 mb-4">
+        <div class="manage-newsletter-stat-card">
+          <div class="manage-newsletter-stat-content">
+            <h3 class="manage-newsletter-stat-number">{{ subscriber_count }}</h3>
+            <p class="manage-newsletter-stat-label">Active Subscribers</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 mb-4">
+        <div class="manage-newsletter-stat-card">
+          <div class="manage-newsletter-stat-content">
+            <h3 class="manage-newsletter-stat-number">{{ newsletters|length }}</h3>
+            <p class="manage-newsletter-stat-label">Total Newsletters</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Newsletter Form -->
+    <div class="row">
+      <div class="col-12">
+        <div id="createForm" class="manage-newsletter-form-card" style="display: none;">
+          <div class="manage-newsletter-form-header">
+            <h5>{% if edit_newsletter %}Edit Newsletter{% else %}Create New Newsletter{% endif %}</h5>
+            <button type="button" class="manage-newsletter-close-btn" onclick="hideCreateForm()">&times;</button>
+          </div>
+          <div class="manage-newsletter-form-body">
+            <form method="post">
+              {% csrf_token %}
+              {% if edit_newsletter %}
+                <input type="hidden" name="update_newsletter" value="1">
+                <input type="hidden" name="newsletter_id" value="{{ edit_newsletter.id }}">
+              {% else %}
+                <input type="hidden" name="create_newsletter" value="1">
+              {% endif %}
+
+              <div class="row">
+                <div class="col-md-12 mb-4">
+                  <label for="subject" class="manage-newsletter-form-label">Subject Line *</label>
+                  <input type="text" class="manage-newsletter-form-input" id="subject" name="subject" required value="{% if edit_newsletter %}{{ edit_newsletter.subject }}{% endif %}">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-12 mb-4">
+                  <label for="content" class="manage-newsletter-form-label">Plain Text Content *</label>
+                  <textarea class="manage-newsletter-form-textarea" id="content" name="content" rows="8" required
+                            placeholder="Write your newsletter content here...">{% if edit_newsletter %}{{ edit_newsletter.content }}{% endif %}</textarea>
+                </div>
+              </div>
+
+              {% if not edit_newsletter %}
+              <div class="row">
+                <div class="col-md-12 mb-4">
+                  <label class="manage-newsletter-form-label">Action *</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="action" id="action_draft" value="draft" checked>
+                    <label class="form-check-label" for="action_draft">
+                      Save as Draft
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="action" id="action_send" value="send">
+                    <label class="form-check-label" for="action_send">
+                      Send Now
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="action" id="action_schedule" value="schedule">
+                    <label class="form-check-label" for="action_schedule">
+                      Schedule for Later
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" id="scheduleDate" style="display: none;">
+                <div class="col-md-12 mb-4">
+                  <label for="scheduled_at" class="manage-newsletter-form-label">Schedule Date & Time *</label>
+                  <input type="datetime-local" class="manage-newsletter-form-input" id="scheduled_at" name="scheduled_at">
+                </div>
+              </div>
+              {% endif %}
+
+              <div class="manage-newsletter-form-actions">
+                <button type="submit" class="manage-newsletter-btn-primary">
+                  <i class="fas fa-paper-plane"></i> {% if edit_newsletter %}Update Newsletter{% else %}Create Newsletter{% endif %}
+                </button>
+                <button type="button" class="manage-newsletter-btn-secondary" onclick="hideCreateForm()">
+                  <i class="fas fa-times"></i> Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Newsletters List -->
+    <div class="row">
+      <div class="col-12">
+        <div class="manage-newsletter-form-card">
+          <div class="manage-newsletter-form-header">
+            <h5>All Newsletters</h5>
+            <div class="filters">
+              <select class="manage-newsletter-form-input" id="statusFilter" style="width: auto; min-width: 180px;">
+                <option value="">All Status</option>
+                <option value="draft">Draft</option>
+                <option value="sent">Sent</option>
+                <option value="scheduled">Scheduled</option>
+              </select>
+              <input type="text" class="manage-newsletter-form-input" id="searchInput" placeholder="Search newsletters..." style="width: auto; min-width: 200px;">
+            </div>
+          </div>
+          <div class="manage-newsletter-form-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Recipients</th>
+                    <th>Created</th>
+                    <th>Sent</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="newslettersTable">
+                  {% for newsletter in newsletters %}
+                  <tr>
+                    <td>{{ newsletter.subject }}</td>
+                    <td>
+                      {% if newsletter.status == 'draft' %}
+                        <span class="manage-newsletter-status-badge manage-newsletter-status-draft">Draft</span>
+                      {% elif newsletter.status == 'sent' %}
+                        <span class="manage-newsletter-status-badge manage-newsletter-status-sent">Sent</span>
+                      {% elif newsletter.status == 'scheduled' %}
+                        <span class="manage-newsletter-status-badge manage-newsletter-status-scheduled">Scheduled</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ newsletter.sent_count }}</td>
+                    <td>{{ newsletter.created_at|date:"M d, Y H:i" }}</td>
+                    <td>
+                      {% if newsletter.sent_at %}
+                        {{ newsletter.sent_at|date:"M d, Y H:i" }}
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="btn-group" role="group">
+                        {% if newsletter.status == 'draft' %}
+                        <button type="button" class="manage-newsletter-action-btn manage-newsletter-edit-btn"
+                                onclick="editNewsletter({{ newsletter.pk }})">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="manage-newsletter-action-btn manage-newsletter-send-btn"
+                                onclick="sendNewsletter({{ newsletter.pk }}, '{{ newsletter.subject }}')">
+                          <i class="fas fa-paper-plane"></i>
+                        </button>
+                        {% endif %}
+                        <button type="button" class="manage-newsletter-action-btn manage-newsletter-view-btn"
+                                onclick="viewNewsletter({{ newsletter.pk }})">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button" class="manage-newsletter-action-btn manage-newsletter-delete-btn"
+                                onclick="deleteNewsletter({{ newsletter.pk }}, '{{ newsletter.subject }}')">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="6" class="text-center py-4">
+                      <p class="text-muted mb-0">No newsletters found.</p>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if newsletters.has_other_pages %}
+            <nav aria-label="Newsletter pagination" class="mt-4">
+              <ul class="pagination justify-content-center">
+                {% if newsletters.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ newsletters.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% for num in newsletters.paginator.page_range %}
+                {% if newsletters.number == num %}
+                <li class="page-item active">
+                  <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% elif num > newsletters.number|add:'-3' and num < newsletters.number|add:'3' %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if newsletters.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ newsletters.next_page_number }}">Next</a>
+                </li>
+                {% endif %}
+              </ul>
+            </nav>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Send Newsletter Modal -->
+<div class="modal fade" id="sendModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Send Newsletter</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to send the newsletter "<span id="sendSubject"></span>" to all subscribers?</p>
+        <div class="alert alert-info">
+          <strong>Recipients:</strong> <span id="recipientCount"></span> subscribers
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="manage-newsletter-btn-primary" id="confirmSend">
+          <i class="fas fa-paper-plane"></i> Send Now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Newsletter</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete the newsletter "<span id="deleteSubject"></span>"?</p>
+        <div class="alert alert-warning">
+          <strong>Warning:</strong> This action cannot be undone.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="manage-newsletter-delete-btn" id="confirmDelete">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Newsletter Modal -->
+<div class="modal fade" id="viewModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Newsletter Content</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="viewContent">
+          <!-- Content will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showCreateForm() {
+  document.getElementById('createForm').style.display = 'block';
+  document.getElementById('createForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function hideCreateForm() {
+  document.getElementById('createForm').style.display = 'none';
+  // If editing, redirect to remove edit parameter from URL
+  {% if edit_newsletter %}
+  window.location.href = '/dashboard/manage/newsletters/';
+  {% endif %}
+}
+
+function viewNewsletter(newsletterId) {
+  // Fetch newsletter content and show in modal
+  fetch(`/dashboard/manage/newsletters/${newsletterId}/content/`, {
+    method: 'GET',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('viewContent').innerHTML = `
+      <h6>Subject: ${data.subject}</h6>
+      <hr>
+      <pre style="white-space: pre-wrap; font-family: inherit;">${data.content}</pre>
+    `;
+    new bootstrap.Modal(document.getElementById('viewModal')).show();
+  })
+  .catch(error => {
+    alert('Error loading newsletter content: ' + error);
+  });
+}
+
+function sendNewsletter(newsletterId, subject) {
+  // Get recipient count
+  document.getElementById('sendSubject').textContent = subject;
+  document.getElementById('recipientCount').textContent = {{ subscriber_count }};
+  document.getElementById('confirmSend').onclick = function() {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.innerHTML = `
+      {% csrf_token %}
+      <input type="hidden" name="send_newsletter" value="${newsletterId}">
+    `;
+    document.body.appendChild(form);
+    form.submit();
+  };
+  new bootstrap.Modal(document.getElementById('sendModal')).show();
+}
+
+function deleteNewsletter(newsletterId, subject) {
+  document.getElementById('deleteSubject').textContent = subject;
+  document.getElementById('confirmDelete').onclick = function() {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.innerHTML = `
+      {% csrf_token %}
+      <input type="hidden" name="delete_newsletter" value="${newsletterId}">
+    `;
+    document.body.appendChild(form);
+    form.submit();
+  };
+  new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+function editNewsletter(newsletterId) {
+  window.location.href = `/dashboard/manage/newsletters/?edit=${newsletterId}`;
+}
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+  const searchTerm = this.value.toLowerCase();
+  const rows = document.querySelectorAll('#newslettersTable tr');
+
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(searchTerm) ? '' : 'none';
+  });
+});
+
+// Status filter functionality
+document.getElementById('statusFilter').addEventListener('change', function() {
+  const status = this.value;
+  const rows = document.querySelectorAll('#newslettersTable tr');
+
+  rows.forEach(row => {
+    if (!status) {
+      row.style.display = '';
+      return;
+    }
+
+    const statusBadges = row.querySelectorAll('.manage-newsletter-status-badge');
+    let showRow = false;
+
+    statusBadges.forEach(badge => {
+      if ((status === 'draft' && badge.classList.contains('manage-newsletter-status-draft')) ||
+          (status === 'sent' && badge.classList.contains('manage-newsletter-status-sent')) ||
+          (status === 'scheduled' && badge.classList.contains('manage-newsletter-status-scheduled'))) {
+        showRow = true;
+      }
+    });
+
+    row.style.display = showRow ? '' : 'none';
+  });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Show create form if editing
+  {% if edit_newsletter %}
+  showCreateForm();
+  {% endif %}
+  
+  // Add focus effects to form inputs
+  const formInputs = document.querySelectorAll('.manage-newsletter-form-input, .manage-newsletter-form-textarea');
+
+  formInputs.forEach(input => {
+    input.addEventListener('focus', function() {
+      this.parentElement.classList.add('focused');
+    });
+
+    input.addEventListener('blur', function() {
+      this.parentElement.classList.remove('focused');
+    });
+  });
+
+  // Handle action radio buttons
+  const actionRadios = document.querySelectorAll('input[name="action"]');
+  actionRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      const scheduleDate = document.getElementById('scheduleDate');
+      if (this.value === 'schedule') {
+        scheduleDate.style.display = 'block';
+        document.getElementById('scheduled_at').required = true;
+      } else {
+        scheduleDate.style.display = 'none';
+        document.getElementById('scheduled_at').required = false;
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

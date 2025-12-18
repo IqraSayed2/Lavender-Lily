@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Homepage{% endblock %}
+
+{% block content %}
+<section class="homepage-management">
+  <div class="container">
+    <div class="row">
+      <!-- Header -->
+      <div class="col-12">
+        <div class="homepage-header">
+          <div class="homepage-header-content">
+            <h1><i class="fas fa-home"></i> Homepage Management</h1>
+            <p>Customize your website's homepage content</p>
+          </div>
+          <div class="homepage-header-actions">
+            <a href="{% url 'admin_dashboard' %}" class="homepage-back-link">
+              <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <a href="{% url 'home' %}" target="_blank" class="lavender-btn-primary">
+              <i class="fas fa-external-link-alt"></i> View Homepage
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Homepage Form -->
+    <div class="row">
+      <div class="col-12">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- Hero Section -->
+          <div class="homepage-form-card">
+            <div class="homepage-form-header">
+              <h5>Hero Section</h5>
+            </div>
+            <div class="homepage-form-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-4">
+                    <label for="season_tag" class="homepage-form-label">Season Tag</label>
+                    <input type="text" class="homepage-form-input" id="season_tag" name="season_tag"
+                           value="{{ homepage.season_tag }}" placeholder="SPRING / SUMMER 2024">
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="hero_title" class="homepage-form-label">Hero Title</label>
+                    <input type="text" class="homepage-form-input" id="hero_title" name="hero_title"
+                           value="{{ homepage.hero_title }}" placeholder="Ethereal">
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="hero_subtitle" class="homepage-form-label">Hero Subtitle</label>
+                    <input type="text" class="homepage-form-input" id="hero_subtitle" name="hero_subtitle"
+                           value="{{ homepage.hero_subtitle }}" placeholder="Elegance">
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label for="explore_button_text" class="homepage-form-label">Explore Button Text</label>
+                      <input type="text" class="homepage-form-input" id="explore_button_text" name="explore_button_text"
+                             value="{{ homepage.explore_button_text }}">
+                    </div>
+                    <div class="col-md-6 mb-4">
+                      <label for="watch_button_text" class="homepage-form-label">Watch Button Text</label>
+                      <input type="text" class="homepage-form-input" id="watch_button_text" name="watch_button_text"
+                             value="{{ homepage.watch_button_text }}">
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="watch_button_url" class="homepage-form-label">Watch Button URL</label>
+                    <input type="url" class="homepage-form-input" id="watch_button_url" name="watch_button_url"
+                           value="{{ homepage.watch_button_url }}" placeholder="https://youtube.com/watch?v=...">
+                    <div class="homepage-form-help">URL for campaign video (YouTube, Vimeo, etc.). Leave empty to hide the watch button.</div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="mb-4">
+                    <label for="hero_background" class="homepage-form-label">Hero Background Image</label>
+                    {% if homepage.hero_background %}
+                    <div class="mb-3">
+                      <img src="{{ homepage.hero_background.url }}" alt="Current hero background"
+                           class="homepage-image-preview">
+                    </div>
+                    {% endif %}
+                    <input type="file" class="homepage-form-input" id="hero_background" name="hero_background" accept="image/*">
+                    <div class="homepage-form-help">Leave empty to keep current image</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Announcement Bar -->
+          <div class="homepage-form-card">
+            <div class="homepage-form-header">
+              <h5>Announcement Bar</h5>
+            </div>
+            <div class="homepage-form-body">
+              <div class="row">
+                <div class="col-md-4 mb-4">
+                  <label for="announcement_1" class="homepage-form-label">Announcement 1</label>
+                  <input type="text" class="homepage-form-input" id="announcement_1" name="announcement_1"
+                         value="{{ homepage.announcement_1 }}">
+                </div>
+                <div class="col-md-4 mb-4">
+                  <label for="announcement_2" class="homepage-form-label">Announcement 2</label>
+                  <input type="text" class="homepage-form-input" id="announcement_2" name="announcement_2"
+                         value="{{ homepage.announcement_2 }}">
+                </div>
+                <div class="col-md-4 mb-4">
+                  <label for="announcement_3" class="homepage-form-label">Announcement 3</label>
+                  <input type="text" class="homepage-form-input" id="announcement_3" name="announcement_3"
+                         value="{{ homepage.announcement_3 }}">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Featured Grid -->
+          <div class="homepage-form-card">
+            <div class="homepage-form-header">
+              <h5>Featured Grid Section</h5>
+            </div>
+            <div class="homepage-form-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <h6 class="homepage-section-subtitle">Feature 1</h6>
+                  <div class="mb-4">
+                    <label for="featured_image_1" class="homepage-form-label">Image</label>
+                    {% if homepage.featured_image_1 %}
+                    <div class="mb-3">
+                      <img src="{{ homepage.featured_image_1.url }}" alt="Feature 1"
+                           class="homepage-image-preview">
+                    </div>
+                    {% endif %}
+                    <input type="file" class="homepage-form-input" id="featured_image_1" name="featured_image_1" accept="image/*">
+                  </div>
+                  <div class="mb-4">
+                    <label for="featured_label_1" class="homepage-form-label">Label</label>
+                    <input type="text" class="homepage-form-input" id="featured_label_1" name="featured_label_1"
+                           value="{{ homepage.featured_label_1 }}">
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <h6 class="homepage-section-subtitle">Feature 2</h6>
+                  <div class="mb-4">
+                    <label for="featured_image_2" class="homepage-form-label">Image</label>
+                    {% if homepage.featured_image_2 %}
+                    <div class="mb-3">
+                      <img src="{{ homepage.featured_image_2.url }}" alt="Feature 2"
+                           class="homepage-image-preview">
+                    </div>
+                    {% endif %}
+                    <input type="file" class="homepage-form-input" id="featured_image_2" name="featured_image_2" accept="image/*">
+                  </div>
+                  <div class="mb-4">
+                    <label for="featured_label_2" class="homepage-form-label">Label</label>
+                    <input type="text" class="homepage-form-input" id="featured_label_2" name="featured_label_2"
+                           value="{{ homepage.featured_label_2 }}">
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <h6 class="homepage-section-subtitle">Feature 3</h6>
+                  <div class="mb-4">
+                    <label for="featured_image_3" class="homepage-form-label">Image</label>
+                    {% if homepage.featured_image_3 %}
+                    <div class="mb-3">
+                      <img src="{{ homepage.featured_image_3.url }}" alt="Feature 3"
+                           class="homepage-image-preview">
+                    </div>
+                    {% endif %}
+                    <input type="file" class="homepage-form-input" id="featured_image_3" name="featured_image_3" accept="image/*">
+                  </div>
+                  <div class="mb-4">
+                    <label for="featured_label_3" class="homepage-form-label">Label</label>
+                    <input type="text" class="homepage-form-input" id="featured_label_3" name="featured_label_3"
+                           value="{{ homepage.featured_label_3 }}">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Newsletter Section -->
+          <div class="homepage-form-card">
+            <div class="homepage-form-header">
+              <h5>Newsletter Section</h5>
+            </div>
+            <div class="homepage-form-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-4">
+                    <label for="newsletter_title" class="homepage-form-label">Newsletter Title</label>
+                    <input type="text" class="homepage-form-input" id="newsletter_title" name="newsletter_title"
+                           value="{{ homepage.newsletter_title }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="newsletter_subtitle" class="homepage-form-label">Newsletter Subtitle</label>
+                    <textarea class="homepage-form-textarea" id="newsletter_subtitle" name="newsletter_subtitle" rows="3">{{ homepage.newsletter_subtitle }}</textarea>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="newsletter_button_text" class="homepage-form-label">Button Text</label>
+                    <input type="text" class="homepage-form-input" id="newsletter_button_text" name="newsletter_button_text"
+                           value="{{ homepage.newsletter_button_text }}">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-4">
+                    <label for="footer_brand_description" class="homepage-form-label">Footer Brand Description</label>
+                    <textarea class="homepage-form-textarea" id="footer_brand_description" name="footer_brand_description" rows="3">{{ homepage.footer_brand_description }}</textarea>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="footer_newsletter_title" class="homepage-form-label">Footer Newsletter Title</label>
+                    <input type="text" class="homepage-form-input" id="footer_newsletter_title" name="footer_newsletter_title"
+                           value="{{ homepage.footer_newsletter_title }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="footer_newsletter_description" class="homepage-form-label">Footer Newsletter Description</label>
+                    <textarea class="homepage-form-textarea" id="footer_newsletter_description" name="footer_newsletter_description" rows="2">{{ homepage.footer_newsletter_description }}</textarea>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="footer_newsletter_button" class="homepage-form-label">Footer Button Text</label>
+                    <input type="text" class="homepage-form-input" id="footer_newsletter_button" name="footer_newsletter_button"
+                           value="{{ homepage.footer_newsletter_button }}">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Auth Pages Images -->
+          <div class="homepage-form-card">
+            <div class="homepage-form-header">
+              <h5>Authentication Pages Images</h5>
+            </div>
+            <div class="homepage-form-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-4">
+                    <label for="signup_image" class="homepage-form-label">Signup Page Image</label>
+                    {% if homepage.signup_image %}
+                    <div class="mb-3">
+                      <img src="{{ homepage.signup_image.url }}" alt="Signup page image"
+                           class="homepage-image-preview">
+                    </div>
+                    {% endif %}
+                    <input type="file" class="homepage-form-input" id="signup_image" name="signup_image" accept="image/*">
+                    <div class="homepage-form-help">Leave empty to keep current image. Recommended size: 1200x800px</div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-4">
+                    <label for="signin_image" class="homepage-form-label">Signin Page Image</label>
+                    {% if homepage.signin_image %}
+                    <div class="mb-3">
+                      <img src="{{ homepage.signin_image.url }}" alt="Signin page image"
+                           class="homepage-image-preview">
+                    </div>
+                    {% endif %}
+                    <input type="file" class="homepage-form-input" id="signin_image" name="signin_image" accept="image/*">
+                    <div class="homepage-form-help">Leave empty to keep current image. Recommended size: 1200x800px</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="homepage-form-card">
+            <div class="homepage-form-body text-center">
+              <button type="submit" class="lavender-btn-primary homepage-submit-btn">
+                <i class="fas fa-save"></i> Save Homepage Changes
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// Add focus effects to form elements
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.homepage-form-input, .homepage-form-textarea').forEach(element => {
+    element.addEventListener('focus', function() {
+      this.style.borderColor = '#8b7ba8';
+      this.style.boxShadow = '0 0 0 2px rgba(139, 123, 168, 0.1)';
+    });
+
+    element.addEventListener('blur', function() {
+      this.style.borderColor = '#e0e0e0';
+      this.style.boxShadow = 'none';
+    });
+  });
+});
+</script>
+
+{% endblock %}

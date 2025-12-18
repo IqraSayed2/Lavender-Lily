@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Colors{% endblock %}
+
+{% block content %}
+<section class="add-product-main">
+  <div class="container">
+    <div class="row">
+      <!-- Header -->
+      <div class="col-12">
+        <div class="add-product-header">
+          <div class="add-product-header-content">
+            <h1><i class="fas fa-palette"></i> Color Management</h1>
+            <p>Manage product colors</p>
+          </div>
+          <div class="add-product-header-actions">
+            <a href="{% url 'manage_products' %}" class="add-product-btn-primary">
+              <i class="fas fa-arrow-left"></i> Back to Products
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Add Color Form -->
+      <div class="col-md-4">
+        <div class="add-product-card">
+          <div class="add-product-card-header">
+            <h5>Add New Color</h5>
+          </div>
+          <div class="add-product-card-body">
+            <form method="POST">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="add">
+
+              <div class="mb-4">
+                <label for="name" class="form-label">Color Name *</label>
+                <input type="text" class="form-control" style="min-height: 40px;" id="name" name="name" required>
+              </div>
+
+              <div class="mb-4">
+                <label for="hex_code" class="form-label">Hex Code</label>
+                <div class="input-group">
+                  <span class="input-group-text">#</span>
+                  <input type="text" class="form-control" style="min-height: 40px;" id="hex_code" name="hex_code"
+                         placeholder="FF0000" pattern="[A-Fa-f0-9]{6}" maxlength="6">
+                </div>
+                <div class="form-text">Optional: Hex color code (e.g., FF0000 for red)</div>
+              </div>
+
+              <button type="submit" class="add-product-btn-primary">
+                <i class="fas fa-plus"></i> Add Color
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Colors List -->
+      <div class="col-md-8">
+        <div class="add-product-card">
+          <div class="add-product-card-header">
+            <h5>All Colors ({{ colors|length }})</h5>
+          </div>
+          <div class="add-product-card-body">
+            {% if colors %}
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Color</th>
+                    <th>Name</th>
+                    <th>Hex Code</th>
+                    <th>Products</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for color in colors %}
+                  <tr>
+                    <td>
+                      <div style="width: 30px; height: 30px; border-radius: 50%; background-color: {% if color.hex_code %}{{ color.hex_code }}{% else %}#ccc{% endif %}; border: 2px solid #ddd;"></div>
+                    </td>
+                    <td>
+                      <strong>{{ color.name }}</strong>
+                    </td>
+                    <td>
+                      {% if color.hex_code %}
+                        <code>{{ color.hex_code|upper }}</code>
+                      {% else %}
+                        <span class="text-muted">-</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <span class="badge bg-primary">{{ color.product_set.count }}</span>
+                    </td>
+                    <td>{{ color.created_at|date:"M d, Y" }}</td>
+                    <td>
+                      <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                onclick="editColor({{ color.pk }}, '{{ color.name }}', '{{ color.hex_code }}')">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        {% if color.product_set.count == 0 %}
+                        <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this color?')">
+                          {% csrf_token %}
+                          <input type="hidden" name="action" value="delete">
+                          <input type="hidden" name="color_id" value="{{ color.pk }}">
+                          <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </form>
+                        {% else %}
+                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Cannot delete color with products">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+              <i class="fas fa-palette fa-3x text-muted mb-3"></i>
+              <h4>No colors found</h4>
+              <p class="text-muted">Start by adding your first color.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Color Modal -->
+    <div class="modal fade" id="editColorModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Color</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="edit">
+            <input type="hidden" name="color_id" id="edit_color_id">
+
+            <div class="modal-body">
+              <div class="mb-4">
+                <label for="edit_name" class="form-label">Color Name *</label>
+                <input type="text" class="form-control" id="edit_name" name="name" required>
+              </div>
+
+              <div class="mb-4">
+                <label for="edit_hex_code" class="form-label">Hex Code</label>
+                <div class="input-group">
+                  <span class="input-group-text">#</span>
+                  <input type="text" class="form-control" id="edit_hex_code" name="hex_code"
+                         placeholder="FF0000" pattern="[A-Fa-f0-9]{6}" maxlength="6">
+                </div>
+                <div class="form-text">Optional: Hex color code (e.g., FF0000 for red)</div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="add-product-btn-primary">Update Color</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// Add focus effects to form elements
+document.querySelectorAll('.form-control, .form-select').forEach(element => {
+  element.addEventListener('focus', function() {
+    this.style.borderColor = '#8b7ba8';
+    this.style.boxShadow = '0 0 0 2px rgba(139, 123, 168, 0.1)';
+  });
+
+  element.addEventListener('blur', function() {
+    this.style.borderColor = '#e0e0e0';
+    this.style.boxShadow = 'none';
+  });
+});
+
+function editColor(id, name, hexCode) {
+  document.getElementById('edit_color_id').value = id;
+  document.getElementById('edit_name').value = name;
+  document.getElementById('edit_hex_code').value = hexCode;
+
+  const modal = new bootstrap.Modal(document.getElementById('editColorModal'));
+  modal.show();
+}
+</script>
+{% endblock %}

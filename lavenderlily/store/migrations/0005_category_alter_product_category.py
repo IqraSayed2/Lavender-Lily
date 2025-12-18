@@ -29,7 +29,7 @@ def create_categories_and_update_products(apps, schema_editor):
     for category_name, category_obj in category_objects.items():
         cursor.execute("""
             UPDATE store_product
-            SET category_id = %s
+            SET category = %s
             WHERE category = %s
         """, [category_obj.id, category_name])
 

@@ -52,9 +52,6 @@
         <!-- Overview Section -->
         <div id="overview-section" class="admin-page-section active">
           <div class="admin-dash-header">
-                <button class="admin-dash-menu-toggle d-lg-none" onclick="toggleSidebar()">
-                  <i class="fas fa-bars"></i>
-                </button>
                 <h1><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h1>
                 <p>Welcome back, {{ user.get_full_name|default:user.username }}</p>
               </div>
@@ -62,7 +59,7 @@
 
             <!-- Statistics Cards -->
             <div class="row mb-5">
-              <div class="col-lg-3 col-md-6 col-sm-12 mb-4">
+              <div class="col-lg-3 col-md-6 col-6 mb-4">
                 <div class="admin-dash-formcard h-100">
                   <div class="admin-dash-formbody text-center">
                     <div class="mb-3">
@@ -80,7 +77,7 @@
                 </div>
               </div>
 
-              <div class="col-lg-3 col-md-6 col-sm-12 mb-4">
+              <div class="col-lg-3 col-md-6 col-6 mb-4">
                 <div class="admin-dash-formcard h-100">
                   <div class="admin-dash-formbody text-center">
                     <div class="mb-3">
@@ -97,7 +94,7 @@
                 </div>
               </div>
 
-              <div class="col-lg-3 col-md-6 col-sm-12 mb-4">
+              <div class="col-lg-3 col-md-6 col-6 mb-4">
                 <div class="admin-dash-formcard h-100">
                   <div class="admin-dash-formbody text-center">
                     <div class="mb-3">
@@ -114,7 +111,7 @@
                 </div>
               </div>
 
-              <div class="col-lg-3 col-md-6 col-sm-12 mb-4">
+              <div class="col-lg-3 col-md-6 col-6 mb-4">
                 <div class="admin-dash-formcard h-100">
                   <div class="admin-dash-formbody text-center">
                     <div class="mb-3">
@@ -141,37 +138,37 @@
                   </div>
                   <div class="admin-dash-formbody">
                     <div class="row g-4">
-                      <div class="col-lg-2 col-md-3 col-sm-6">
+                      <div class="col-lg-2 col-md-3 col-6">
                         <a href="{% url 'add_product' %}" class="admin-dash-action-btn w-100 d-flex flex-column align-items-center py-4 px-3">
                           <i class="fas fa-plus fa-2x mb-3"></i>
                           <span class="text-center">Add Product</span>
                         </a>
                       </div>
-                      <div class="col-lg-2 col-md-3 col-sm-6">
+                      <div class="col-lg-2 col-md-3 col-6">
                         <a href="{% url 'manage_newsletters' %}" class="admin-dash-action-btn w-100 d-flex flex-column align-items-center py-4 px-3">
                           <i class="fas fa-envelope fa-2x mb-3"></i>
                           <span class="text-center">Send Newsletter</span>
                         </a>
                       </div>
-                      <div class="col-lg-2 col-md-3 col-sm-6">
+                      <div class="col-lg-2 col-md-3 col-6">
                         <a href="{% url 'manage_homepage' %}" class="admin-dash-action-btn w-100 d-flex flex-column align-items-center py-4 px-3">
                           <i class="fas fa-edit fa-2x mb-3"></i>
                           <span class="text-center">Edit Homepage</span>
                         </a>
                       </div>
-                      <div class="col-lg-2 col-md-3 col-sm-6">
+                      <div class="col-lg-2 col-md-3 col-6">
                         <a href="{% url 'manage_orders' %}" class="admin-dash-action-btn w-100 d-flex flex-column align-items-center py-4 px-3">
                           <i class="fas fa-list fa-2x mb-3"></i>
                           <span class="text-center">View Orders</span>
                         </a>
                       </div>
-                      <div class="col-lg-2 col-md-3 col-sm-6">
+                      <div class="col-lg-2 col-md-3 col-6">
                         <a href="{% url 'manage_messages' %}" class="admin-dash-action-btn w-100 d-flex flex-column align-items-center py-4 px-3">
                           <i class="fas fa-comments fa-2x mb-3"></i>
                           <span class="text-center">View Messages</span>
                         </a>
                       </div>
-                      <div class="col-lg-2 col-md-3 col-sm-6">
+                      <div class="col-lg-2 col-md-3 col-6">
                         <a href="{% url 'manage_users' %}" class="admin-dash-action-btn w-100 d-flex flex-column align-items-center py-4 px-3">
                           <i class="fas fa-user-cog fa-2x mb-3"></i>
                           <span class="text-center">Manage Users</span>
@@ -587,10 +584,6 @@ function toggleSidebar() {
 document.addEventListener('DOMContentLoaded', function() {
   showSection('overview');
 
-  // Hide sidebar on mobile by default
-  if (window.innerWidth < 992) {
-    document.querySelector('.admin-dash-sidebar').classList.add('mobile-hidden');
-  }
 });
 </script>
 

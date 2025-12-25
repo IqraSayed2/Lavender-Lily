@@ -16,9 +16,9 @@
           </div>
 
           <div>
-            <form method="get" class="d-flex gap-2">
-              <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search..." class="llshop-search-input" style="min-width:220px">
-              <select name="sort" class="llshop-sort-dropdown" onchange="this.form.submit()">
+            <form method="get" class="d-flex flex-column flex-sm-row gap-2">
+              <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search..." class="llshop-search-input flex-fill" style="min-width:220px">
+              <select name="sort" class="llshop-sort-dropdown flex-fill" onchange="this.form.submit()">
                 <option value="">Sort by: Featured</option>
                 <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
                 <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>

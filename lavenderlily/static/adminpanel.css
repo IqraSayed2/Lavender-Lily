@@ -3140,6 +3140,66 @@ hr {
   }
 }
 
+/* Category Cover Management */
+.category-cover-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+
+.category-cover-card:hover {
+  border-color: #8b7ba8;
+}
+
+.category-name {
+  font-family: "Playfair Display", serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.category-cover-preview {
+  width: 100%;
+  max-width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  margin-bottom: 15px;
+}
+
+.category-no-image {
+  width: 100%;
+  max-width: 200px;
+  height: 150px;
+  margin: 0 auto 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px dashed #dee2e6;
+  border-radius: 6px;
+  color: #6c757d;
+}
+
+.category-no-image i {
+  font-size: 24px;
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+
+.category-no-image span {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+
 /* ============================================= MANAGE MESSAGE ============================================= */
 
 .messages-management {
@@ -3998,3 +4058,4 @@ hr {
     justify-content: center;
   }
 }
+

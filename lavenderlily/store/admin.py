@@ -1,11 +1,20 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import Product, Review, Category, Color, Size
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "slug", "created_at")
+    list_display = ("id", "name", "slug", "cover_image_thumbnail", "created_at")
     search_fields = ("name",)
     prepopulated_fields = {"slug": ("name",)}
+    fields = ("name", "slug", "description", "cover_image")
+    readonly_fields = ("slug",)
+
+    def cover_image_thumbnail(self, obj):
+        if obj.cover_image:
+            return format_html('<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" />', obj.cover_image.url)
+        return "No image"
+    cover_image_thumbnail.short_description = "Cover Image"
 
 @admin.register(Color)
 class ColorAdmin(admin.ModelAdmin):

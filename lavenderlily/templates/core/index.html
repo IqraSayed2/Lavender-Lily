@@ -73,6 +73,11 @@
         {% if user.is_authenticated %}
         <a href="{% url 'profile' %}#ordersSection" onclick="closeMobileMenu()">My Orders</a>
         {% endif %}
+        {% if user.is_staff %}
+        <a href="{% url 'admin_dashboard' %}" onclick="closeMobileMenu()" class="admin-link">
+          <i class="fas fa-cog"></i> Admin Panel
+        </a>
+        {% endif %}
       </div>
     </nav>
 
@@ -123,53 +128,55 @@
     <!-- New Arrival - Product Carousel -->
     <section class="lavender-edit-section">
       <div class="container">
-        <div class="lavender-section-header">
-          <h2 class="lavender-section-title">New Arrivals</h2>
-          <a href="{% url 'shop' %}" class="lavender-view-all"
-            >VIEW ALL PIECES</a>
-        </div>
 
-        <!-- Featured Grid -->
-        <div class="llhome-featured-grid">
-          <div class="llhome-featured-card llhome-featured-large">
-            <img
-              src="{% if homepage.featured_image_1 %}{{ homepage.featured_image_1.url }}{% else %}https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=600&q=80{% endif %}"
-              alt="Featured Style"
-              class="llhome-featured-image"
-            />
-            <div class="llhome-featured-overlay">
-              <div class="llhome-featured-label">
-                {{ homepage.featured_label_1|default:"Style Inspiration" }}
+        <!-- Shop by Category -->
+        <div class="shop-by-category">
+          <h2 class="shop-category-title">Shop by Category</h2>
+          <p class="shop-category-description">Curated essentials for every occasion</p>
+
+          <div class="shop-category-carousel position-relative">
+            <button
+              class="shop-carousel-nav shop-prev"
+              onclick="slideCategories(-1)"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <div class="shop-carousel-viewport">
+              <div class="shop-carousel-wrapper" id="categoryWrapper">
+                {% for category in categories %}
+                <a
+                  href="{% url 'shop' %}?category={{ category.name }}"
+                  class="shop-category-card"
+                >
+                  {% if category.cover_image %}
+                  <img src="{{ category.cover_image.url }}" alt="{{ category.name }}" class="shop-category-image">
+                  {% else %}
+                  <div class="shop-category-placeholder">
+                    <i class="fas fa-image"></i>
+                    <span>{{ category.name }}</span>
+                  </div>
+                  {% endif %}
+                </a>
+                {% endfor %}
               </div>
             </div>
-          </div>
-          <div class="llhome-featured-card" style="height: 600px">
-            <img
-              src="{% if homepage.featured_image_2 %}{{ homepage.featured_image_2.url }}{% else %}https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80{% endif %}"
-              alt="Fine Details"
-              class="llhome-featured-image"
-            />
-            <div class="llhome-featured-overlay">
-              <div class="llhome-featured-label">
-                {{ homepage.featured_label_2|default:"Fine Details" }}
-              </div>
-            </div>
-          </div>
-          <div class="llhome-featured-card" style="height: 360px">
-            <img
-              src="{% if homepage.featured_image_3 %}{{ homepage.featured_image_3.url }}{% else %}https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80{% endif %}"
-              alt="New Collection"
-              class="llhome-featured-image"
-            />
-            <div class="llhome-featured-overlay">
-              <div class="llhome-featured-label">
-                {{ homepage.featured_label_3|default:"New Collection" }}
-              </div>
-            </div>
+
+            <button
+              class="shop-carousel-nav shop-next"
+              onclick="slideCategories(1)"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
           </div>
         </div>
 
         <div class="lavender-product-carousel position-relative">
+          <div class="lavender-section-header">
+              <h2 class="lavender-section-title">Trending Now</h2>
+              <a href="{% url 'shop' %}" class="lavender-view-all">VIEW ALL</a>
+          </div>
+
           <button
             class="lavender-carousel-nav lavender-prev"
             onclick="slideProducts(-1)"
@@ -411,6 +418,45 @@
       window.addEventListener("resize", () => {
         cardsPerView = getCardsPerView();
         slideProducts(0); // Recalculate position
+      });
+
+      // Category Carousel
+      let currentCategorySlide = 0;
+      const categoryWrapper = document.getElementById("categoryWrapper");
+      const categoryCards = document.querySelectorAll(".shop-category-card");
+      let categoriesPerView = getCategoriesPerView();
+
+      function getCategoriesPerView() {
+        if (window.innerWidth >= 1200) return 4;
+        if (window.innerWidth >= 992) return 3;
+        if (window.innerWidth >= 768) return 2;
+        if (window.innerWidth >= 576) return 2;
+        return 1;
+      }
+
+      function slideCategories(direction) {
+        categoriesPerView = getCategoriesPerView();
+        const maxSlide = categoryCards.length - categoriesPerView;
+
+        currentCategorySlide += direction;
+
+        if (currentCategorySlide < 0) {
+          currentCategorySlide = 0;
+        } else if (currentCategorySlide > maxSlide) {
+          currentCategorySlide = maxSlide;
+        }
+
+        const cardWidth = categoryCards[0].offsetWidth;
+        const gap = 20;
+        const offset = -(currentCategorySlide * (cardWidth + gap));
+
+        categoryWrapper.style.transform = `translateX(${offset}px)`;
+      }
+
+      // Handle window resize for categories
+      window.addEventListener("resize", () => {
+        categoriesPerView = getCategoriesPerView();
+        slideCategories(0); // Recalculate position
       });
 
       // Newsletter subscription with AJAX

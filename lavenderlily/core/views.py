@@ -22,11 +22,15 @@ def home(request):
     # Show latest 6 products as "New Arrivals"
     products = Product.objects.all().order_by('-created_at')[:6]
 
+    # Get all categories for the shop by category section
+    categories = Category.objects.all().order_by('name')
+
     # Get homepage content
     homepage = Homepage.objects.first()
 
     return render(request, 'core/index.html', {
         'products': products,
+        'categories': categories,
         'homepage': homepage
     })
 
@@ -672,6 +676,8 @@ def manage_homepage(request):
     if not homepage:
         homepage = Homepage.objects.create()
 
+    categories = Category.objects.all().order_by('name')
+
     if request.method == 'POST':
         # Update homepage fields
         homepage.hero_background = request.FILES.get('hero_background') or homepage.hero_background
@@ -687,14 +693,6 @@ def manage_homepage(request):
         homepage.announcement_2 = request.POST.get('announcement_2', homepage.announcement_2)
         homepage.announcement_3 = request.POST.get('announcement_3', homepage.announcement_3)
 
-        # Featured grid
-        homepage.featured_image_1 = request.FILES.get('featured_image_1') or homepage.featured_image_1
-        homepage.featured_label_1 = request.POST.get('featured_label_1', homepage.featured_label_1)
-        homepage.featured_image_2 = request.FILES.get('featured_image_2') or homepage.featured_image_2
-        homepage.featured_label_2 = request.POST.get('featured_label_2', homepage.featured_label_2)
-        homepage.featured_image_3 = request.FILES.get('featured_image_3') or homepage.featured_image_3
-        homepage.featured_label_3 = request.POST.get('featured_label_3', homepage.featured_label_3)
-
         # Newsletter section
         homepage.newsletter_title = request.POST.get('newsletter_title', homepage.newsletter_title)
         homepage.newsletter_subtitle = request.POST.get('newsletter_subtitle', homepage.newsletter_subtitle)
@@ -707,11 +705,20 @@ def manage_homepage(request):
         homepage.footer_newsletter_button = request.POST.get('footer_newsletter_button', homepage.footer_newsletter_button)
 
         homepage.save()
-        messages.success(request, 'Homepage has been updated successfully.')
+
+        # Handle category cover images
+        for category in categories:
+            cover_image_key = f'category_cover_{category.id}'
+            if cover_image_key in request.FILES:
+                category.cover_image = request.FILES[cover_image_key]
+                category.save()
+
+        messages.success(request, 'Homepage and category images have been updated successfully.')
         return redirect('manage_homepage')
 
     context = {
         'homepage': homepage,
+        'categories': categories,
     }
     return render(request, 'admin/manage_homepage.html', context)
 

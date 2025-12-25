@@ -122,69 +122,38 @@
             </div>
           </div>
 
-          <!-- Featured Grid -->
+          <!-- Category Cover Images -->
           <div class="homepage-form-card">
             <div class="homepage-form-header">
-              <h5>Featured Grid Section</h5>
+              <h5>Category Cover Images</h5>
+              <small class="text-muted">Upload cover images for homepage category carousel</small>
             </div>
             <div class="homepage-form-body">
               <div class="row">
-                <div class="col-md-4">
-                  <h6 class="homepage-section-subtitle">Feature 1</h6>
-                  <div class="mb-4">
-                    <label for="featured_image_1" class="homepage-form-label">Image</label>
-                    {% if homepage.featured_image_1 %}
+                {% for category in categories %}
+                <div class="col-md-4 col-sm-6 mb-4">
+                  <div class="category-cover-card">
+                    <h6 class="category-name">{{ category.name }}</h6>
+                    {% if category.cover_image %}
                     <div class="mb-3">
-                      <img src="{{ homepage.featured_image_1.url }}" alt="Feature 1"
-                           class="homepage-image-preview">
+                      <img src="{{ category.cover_image.url }}" alt="{{ category.name }}"
+                           class="category-cover-preview">
+                    </div>
+                    {% else %}
+                    <div class="category-no-image">
+                      <i class="fas fa-image"></i>
+                      <span>No image uploaded</span>
                     </div>
                     {% endif %}
-                    <input type="file" class="homepage-form-input" id="featured_image_1" name="featured_image_1" accept="image/*">
-                  </div>
-                  <div class="mb-4">
-                    <label for="featured_label_1" class="homepage-form-label">Label</label>
-                    <input type="text" class="homepage-form-input" id="featured_label_1" name="featured_label_1"
-                           value="{{ homepage.featured_label_1 }}">
-                  </div>
-                </div>
-
-                <div class="col-md-4">
-                  <h6 class="homepage-section-subtitle">Feature 2</h6>
-                  <div class="mb-4">
-                    <label for="featured_image_2" class="homepage-form-label">Image</label>
-                    {% if homepage.featured_image_2 %}
                     <div class="mb-3">
-                      <img src="{{ homepage.featured_image_2.url }}" alt="Feature 2"
-                           class="homepage-image-preview">
+                      <label for="category_cover_{{ category.id }}" class="homepage-form-label">Upload New Image</label>
+                      <input type="file" class="homepage-form-input" id="category_cover_{{ category.id }}"
+                             name="category_cover_{{ category.id }}" accept="image/*">
+                      <div class="homepage-form-help">Recommended size: 300x350px</div>
                     </div>
-                    {% endif %}
-                    <input type="file" class="homepage-form-input" id="featured_image_2" name="featured_image_2" accept="image/*">
-                  </div>
-                  <div class="mb-4">
-                    <label for="featured_label_2" class="homepage-form-label">Label</label>
-                    <input type="text" class="homepage-form-input" id="featured_label_2" name="featured_label_2"
-                           value="{{ homepage.featured_label_2 }}">
                   </div>
                 </div>
-
-                <div class="col-md-4">
-                  <h6 class="homepage-section-subtitle">Feature 3</h6>
-                  <div class="mb-4">
-                    <label for="featured_image_3" class="homepage-form-label">Image</label>
-                    {% if homepage.featured_image_3 %}
-                    <div class="mb-3">
-                      <img src="{{ homepage.featured_image_3.url }}" alt="Feature 3"
-                           class="homepage-image-preview">
-                    </div>
-                    {% endif %}
-                    <input type="file" class="homepage-form-input" id="featured_image_3" name="featured_image_3" accept="image/*">
-                  </div>
-                  <div class="mb-4">
-                    <label for="featured_label_3" class="homepage-form-label">Label</label>
-                    <input type="text" class="homepage-form-input" id="featured_label_3" name="featured_label_3"
-                           value="{{ homepage.featured_label_3 }}">
-                  </div>
-                </div>
+                {% endfor %}
               </div>
             </div>
           </div>

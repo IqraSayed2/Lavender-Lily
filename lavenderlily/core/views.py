@@ -7,7 +7,8 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.views.decorators.http import require_POST
-from .models import AboutPage, ContactPage, ContactService, ContactMessage, UserAddress, Homepage, NewsletterSubscriber, Newsletter
+import json
+from .models import AboutPage, ContactPage, ContactService, ContactMessage, UserAddress, Homepage, NewsletterSubscriber, Newsletter, SocialMedia
 from django.core.mail import send_mail
 from django.conf import settings
 from orders.models import Order
@@ -16,6 +17,8 @@ from cart.models import WishlistItem
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 from .utils import send_newsletter_email
+from django.views.decorators.csrf import csrf_exempt
+
 
 def home(request):
     # Get featured products for homepage carousel
@@ -28,10 +31,14 @@ def home(request):
     # Get homepage content
     homepage = Homepage.objects.first()
 
+    # Get active social media links
+    social_media_links = SocialMedia.objects.filter(is_active=True).order_by('display_order')
+
     return render(request, 'core/index.html', {
         'products': products,
         'categories': categories,
-        'homepage': homepage
+        'homepage': homepage,
+        'social_media_links': social_media_links
     })
 
 def about(request):
@@ -719,6 +726,7 @@ def manage_homepage(request):
     context = {
         'homepage': homepage,
         'categories': categories,
+        'social_media_links': SocialMedia.objects.all().order_by('display_order'),
     }
     return render(request, 'admin/manage_homepage.html', context)
 
@@ -1013,3 +1021,94 @@ def toggle_subscriber_status(request, pk):
     messages.success(request, f'Subscriber {subscriber.email} has been {status}.')
 
     return redirect('manage_subscribers')
+
+
+# Social Media API Views
+@csrf_exempt
+def social_media_list_create(request):
+    """API endpoint for social media CRUD operations"""
+    # Check authentication manually for AJAX requests
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Authentication required'}, status=401)
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'Staff access required'}, status=403)
+
+    if request.method == 'GET':
+        social_media = SocialMedia.objects.all().order_by('display_order')
+        data = []
+        for sm in social_media:
+            data.append({
+                'id': sm.id,
+                'platform': sm.platform,
+                'url': sm.url,
+                'is_active': sm.is_active,
+                'display_order': sm.display_order,
+                'icon_class': sm.get_icon_class(),
+                'platform_display': sm.get_platform_display()
+            })
+        return JsonResponse({'social_media': data})
+
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            social_media = SocialMedia.objects.create(
+                platform=data['platform'],
+                url=data['url'],
+                is_active=data.get('is_active', True),
+                display_order=data.get('display_order', 1)
+            )
+            return JsonResponse({
+                'success': True,
+                'id': social_media.id,
+                'message': f'{social_media.get_platform_display()} link added successfully'
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+@csrf_exempt
+def social_media_detail(request, pk):
+    """API endpoint for individual social media operations"""
+    # Check authentication manually for AJAX requests
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Authentication required'}, status=401)
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'Staff access required'}, status=403)
+
+    social_media = get_object_or_404(SocialMedia, pk=pk)
+
+    if request.method == 'GET':
+        return JsonResponse({
+            'id': social_media.id,
+            'platform': social_media.platform,
+            'url': social_media.url,
+            'is_active': social_media.is_active,
+            'display_order': social_media.display_order
+        })
+
+    elif request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            social_media.platform = data['platform']
+            social_media.url = data['url']
+            social_media.is_active = data.get('is_active', True)
+            social_media.display_order = data.get('display_order', 1)
+            social_media.save()
+            return JsonResponse({
+                'success': True,
+                'message': f'{social_media.get_platform_display()} link updated successfully'
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    elif request.method == 'DELETE':
+        platform_name = social_media.get_platform_display()
+        social_media.delete()
+        return JsonResponse({
+            'success': True,
+            'message': f'{platform_name} link deleted successfully'
+        })
+
+    return JsonResponse({'error': 'Method not allowed'}, status=405)

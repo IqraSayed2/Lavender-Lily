@@ -13,7 +13,17 @@
         <div class="payment-page-header">
           <div class="text-center">
             <h1 class="payment-page-title">Complete Your Payment</h1>
-            <p class="payment-results-count">Secure payment processing with Razorpay</p>
+            <p class="payment-results-count">
+              {% if payment_method == 'Ziina' %}
+                Secure payment processing with Ziina
+              {% elif payment_method == 'ApplePay' %}
+                Secure payment processing with Apple Pay
+              {% elif payment_method == 'GooglePay' %}
+                Secure payment processing with Google Pay
+              {% else %}
+                Secure payment processing with Razorpay
+              {% endif %}
+            </p>
           </div>
         </div>
       </div>
@@ -46,10 +56,10 @@
               <div class="payment-item-details">
                 <h6 class="payment-item-name">{{ item.product.name }}</h6>
                 <p class="payment-item-meta">Quantity: {{ item.quantity }}</p>
-                <p class="payment-item-price">{{ item.price }} {{ currency }} each</p>
+                <p class="payment-item-price">{{ item.price|floatformat:2 }} {{ currency }} each</p>
               </div>
               <div class="payment-item-total">
-                <span class="payment-item-total-price">{{ item.subtotal }} {{ currency }}</span>
+                <span class="payment-item-total-price">{{ item.subtotal|floatformat:2 }} {{ currency }}</span>
               </div>
             </div>
             {% endfor %}
@@ -59,19 +69,19 @@
           <div class="payment-totals">
             <div class="payment-total-row">
               <span class="payment-total-label">Subtotal:</span>
-              <span class="payment-total-value">{{ subtotal }} {{ currency }}</span>
+              <span class="payment-total-value">{{ subtotal|floatformat:2 }} {{ currency }}</span>
             </div>
             <div class="payment-total-row">
               <span class="payment-total-label">Shipping:</span>
-              <span class="payment-total-value">{{ shipping }} {{ currency }}</span>
+              <span class="payment-total-value">{{ shipping|floatformat:2 }} {{ currency }}</span>
             </div>
             <div class="payment-total-row">
               <span class="payment-total-label">Tax (5% VAT):</span>
-              <span class="payment-total-value">{{ tax }} {{ currency }}</span>
+              <span class="payment-total-value">{{ tax|floatformat:2 }} {{ currency }}</span>
             </div>
             <div class="payment-total-row payment-grand-total">
               <span class="payment-total-label">Total Amount:</span>
-              <span class="payment-total-value">{{ order.total_amount }} {{ currency }}</span>
+              <span class="payment-total-value">{{ order.total_amount|floatformat:2 }} {{ currency }}</span>
             </div>
           </div>
         </div>
@@ -86,7 +96,7 @@
                 </div>
                 <div class="payment-info-item">
                   <span class="payment-label">Total Amount:</span>
-                  <span class="payment-value payment-amount">{{ order.total_amount }} {{ currency }}</span>
+                  <span class="payment-value payment-amount">{{ order.total_amount|floatformat:2 }} {{ currency }}</span>
                 </div>
                 <div class="payment-info-item">
                   <span class="payment-label">Customer:</span>
@@ -108,11 +118,39 @@
                 <h5 class="payment-info-title">Payment Method</h5>
                 <div class="payment-method-card">
                   <div class="payment-method-icon">
-                    <i class="fab fa-cc-visa"></i>
+                    {% if payment_method == 'Ziina' %}
+                      <i class="fas fa-credit-card"></i>
+                    {% elif payment_method == 'ApplePay' %}
+                      <i class="fab fa-apple-pay"></i>
+                    {% elif payment_method == 'GooglePay' %}
+                      <i class="fab fa-google-pay"></i>
+                    {% else %}
+                      <i class="fab fa-cc-visa"></i>
+                    {% endif %}
                   </div>
                   <div class="llpayment-method-details">
-                    <h6 class="llpayment-method-name">Razorpay</h6>
-                    <p class="payment-method-desc">Secure payment gateway</p>
+                    <h6 class="llpayment-method-name">
+                      {% if payment_method == 'Ziina' %}
+                        Ziina
+                      {% elif payment_method == 'ApplePay' %}
+                        Apple Pay
+                      {% elif payment_method == 'GooglePay' %}
+                        Google Pay
+                      {% else %}
+                        Credit/Debit Card
+                      {% endif %}
+                    </h6>
+                    <p class="payment-method-desc">
+                      {% if payment_method == 'Ziina' %}
+                        UAE's leading payment gateway
+                      {% elif payment_method == 'ApplePay' %}
+                        Pay with Touch ID or Face ID
+                      {% elif payment_method == 'GooglePay' %}
+                        Fast and secure payment
+                      {% else %}
+                        Visa, Mastercard, American Express
+                      {% endif %}
+                    </p>
                     <div class="payment-security-badges">
                       <span class="payment-badge">
                         <i class="fas fa-shield-alt"></i> SSL Encrypted
@@ -140,19 +178,27 @@
             <div class="payment-action-content">
               <div class="payment-amount-display">
                 <span class="payment-amount-label">Amount to Pay</span>
-                <div class="payment-amount-value">{{ order.total_amount }} {{ currency }}</div>
+                <div class="payment-amount-value">{{ order.total_amount|floatformat:2 }} {{ currency }}</div>
               </div>
 
               <div class="payment-form">
                 <button id="rzp-button1" class="payment-pay-btn">
                   <i class="fas fa-credit-card me-2"></i>
-                  Pay {{ order.total_amount }} {{ currency }}
+                  Pay {{ order.total_amount|floatformat:2 }} {{ currency }}
                 </button>
               </div>
 
               <div class="payment-notice">
                 <i class="fas fa-info-circle me-1"></i>
-                Your payment is secured by Razorpay
+                {% if payment_method == 'Ziina' %}
+                  Your payment is secured by Ziina
+                {% elif payment_method == 'ApplePay' %}
+                  Your payment is secured by Apple Pay
+                {% elif payment_method == 'GooglePay' %}
+                  Your payment is secured by Google Pay
+                {% else %}
+                  Your payment is secured by Razorpay
+                {% endif %}
               </div>
 
               <div class="payment-security-notice">
@@ -178,6 +224,8 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    {% if payment_method == 'Razorpay' or payment_method == 'ApplePay' or payment_method == 'GooglePay' %}
+    // Razorpay payment integration (includes Apple Pay and Google Pay)
     const options = {
         "key": "{{ razorpay_key_id }}",
         "amount": "{{ amount }}",
@@ -190,9 +238,20 @@ document.addEventListener('DOMContentLoaded', function() {
             "email": "{{ customer_email }}",
             "contact": "{{ customer_phone }}"
         },
+        "notes": {
+            "country": "UAE",
+            "currency": "AED"
+        },
         "theme": {
             "color": "#7c3aed"
         },
+        {% if payment_method == 'ApplePay' %}
+        "method": "wallet",
+        "wallet": "apple_pay",
+        {% elif payment_method == 'GooglePay' %}
+        "method": "wallet",
+        "wallet": "google_pay",
+        {% endif %}
         "handler": function (response) {
             // Handle successful payment
             const form = document.createElement('form');
@@ -230,6 +289,54 @@ document.addEventListener('DOMContentLoaded', function() {
         rzp.open();
         e.preventDefault();
     };
+
+    {% elif payment_method == 'Ziina' %}
+    // Ziina payment integration (Production)
+    document.getElementById('rzp-button1').onclick = function(e) {
+        e.preventDefault();
+
+        // Show loading state
+        const button = document.getElementById('rzp-button1');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+        button.disabled = true;
+
+        // Create Ziina payment session
+        fetch('/orders/create-ziina-payment/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                order_number: '{{ order.order_number }}',
+                amount: {{ amount }},
+                currency: '{{ currency }}'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Redirect to Ziina payment page
+                window.location.href = data.payment_url;
+            } else {
+                // Reset button
+                button.innerHTML = originalText;
+                button.disabled = false;
+
+                alert('Payment initialization failed: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            // Reset button
+            button.innerHTML = originalText;
+            button.disabled = false;
+
+            console.error('Ziina payment error:', error);
+            alert('Payment failed. Please try again.');
+        });
+    };
+    {% endif %}
 });
 </script>
 

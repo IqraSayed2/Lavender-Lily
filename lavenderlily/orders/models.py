@@ -19,6 +19,7 @@ class Order(models.Model):
     payment_method = models.CharField(max_length=50, default="COD")
     razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
     razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    ziina_payment_id = models.CharField(max_length=100, blank=True, null=True)
     is_paid = models.BooleanField(default=True)
     shipping_address = models.ForeignKey(UserAddress, on_delete=models.SET_NULL, null=True, blank=True)
     cancel_requested = models.BooleanField(default=False)

@@ -56,6 +56,10 @@ urlpatterns = [
     path('dashboard/manage/subscribers/', views.manage_subscribers, name='manage_subscribers'),
     path('dashboard/manage/subscribers/<int:pk>/toggle/', views.toggle_subscriber_status, name='toggle_subscriber_status'),
 
+    # Social Media Management API
+    path('api/socialmedia/', views.social_media_list_create, name='social_media_list_create'),
+    path('api/socialmedia/<int:pk>/', views.social_media_detail, name='social_media_detail'),
+
     # Store management URLs under dashboard
     path('dashboard/manage/products/', store_views.manage_products, name='manage_products'),
     path('dashboard/manage/products/add/', store_views.add_product, name='add_product'),

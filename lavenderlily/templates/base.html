@@ -157,9 +157,15 @@
             <div id="baseNewsletterMessage" class="mt-2" style="display: none;"></div>
 
             <div class="llshop-social-icons">
-              <a href="#"><i class="fab fa-instagram"></i></a>
-              <a href="#"><i class="fab fa-facebook-f"></i></a>
-              <a href="#"><i class="fab fa-twitter"></i></a>
+              {% for social in social_media_links %}
+                <a href="{{ social.url }}" target="_blank" rel="noopener noreferrer" title="{{ social.get_platform_display }}">
+                  <i class="{{ social.get_icon_class }}"></i>
+                </a>
+              {% empty %}
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+              {% endfor %}
             </div>
           </div>
         </div>

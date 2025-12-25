@@ -3199,7 +3199,6 @@ hr {
   font-weight: 500;
 }
 
-
 /* ============================================= MANAGE MESSAGE ============================================= */
 
 .messages-management {
@@ -4059,3 +4058,194 @@ hr {
   }
 }
 
+/* ============================================= SOCIAL MEDIA MANAGEMENT ============================================= */
+
+.social-media-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.social-media-item {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.social-media-item:hover {
+  border-color: #8b7ba8;
+  box-shadow: 0 4px 16px rgba(139, 123, 168, 0.1);
+  transform: translateY(-2px);
+}
+
+.social-media-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.social-media-platform {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.social-media-platform i {
+  font-size: 24px;
+  color: #8b7ba8;
+  width: 32px;
+  text-align: center;
+}
+
+.social-media-platform span {
+  font-family: "Playfair Display", serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+}
+
+.social-media-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.social-media-edit-btn,
+.social-media-delete-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.social-media-edit-btn {
+  background: #8b7ba8;
+  color: white;
+}
+
+.social-media-edit-btn:hover {
+  background: #7a6a96;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(139, 123, 168, 0.3);
+}
+
+.social-media-delete-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.social-media-delete-btn:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.social-media-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.social-media-url {
+  font-size: 14px;
+}
+
+.social-media-url a {
+  color: #8b7ba8;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.social-media-url a:hover {
+  color: #7a6a96;
+  text-decoration: underline;
+}
+
+.social-media-status {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.social-media-status strong {
+  color: #666;
+  font-weight: 600;
+}
+
+.text-success {
+  color: #28a745 !important;
+  font-weight: 500;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+  font-weight: 500;
+}
+
+/* Add New Social Media Button */
+.lavender-btn-primary {
+  background: #8b7ba8;
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lavender-btn-primary:hover {
+  background: #7a6a96;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(139, 123, 168, 0.3);
+  color: white;
+  text-decoration: none;
+}
+
+/* Responsive Social Media Management */
+@media (max-width: 768px) {
+  .social-media-item {
+    padding: 20px;
+  }
+
+  .social-media-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .social-media-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .social-media-edit-btn,
+  .social-media-delete-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .social-media-status {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

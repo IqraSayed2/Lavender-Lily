@@ -247,6 +247,59 @@
             </div>
           </div>
 
+          <!-- Social Media Management -->
+          <div class="homepage-form-card">
+            <div class="homepage-form-header">
+              <h5><i class="fab fa-instagram"></i> Social Media Links</h5>
+              <small class="text-muted">Manage social media links that appear in the website footer</small>
+            </div>
+            <div class="homepage-form-body">
+              <div class="social-media-list">
+                {% for social in social_media_links %}
+                <div class="social-media-item" data-id="{{ social.id }}">
+                  <div class="social-media-item-header">
+                    <div class="social-media-platform">
+                      <i class="{{ social.get_icon_class }}"></i>
+                      <span>{{ social.get_platform_display }}</span>
+                    </div>
+                    <div class="social-media-actions">
+                      <button type="button" class="social-media-edit-btn" data-id="{{ social.id }}" onclick="editSocialMedia(this)">
+                        <i class="fas fa-edit"></i> Edit
+                      </button>
+                      <button type="button" class="social-media-delete-btn" data-id="{{ social.id }}" data-platform="{{ social.get_platform_display|escapejs }}" onclick="deleteSocialMedia(this)">
+                        <i class="fas fa-trash"></i> Delete
+                      </button>
+                    </div>
+                  </div>
+                  <div class="social-media-details">
+                    <div class="social-media-url">
+                      <strong>URL:</strong> <a href="{{ social.url }}" target="_blank">{{ social.url }}</a>
+                    </div>
+                    <div class="social-media-status">
+                      <strong>Status:</strong>
+                      <span class="{% if social.is_active %}text-success{% else %}text-danger{% endif %}">
+                        {% if social.is_active %}Active{% else %}Inactive{% endif %}
+                      </span>
+                      <span class="ms-3"><strong>Order:</strong> {{ social.display_order }}</span>
+                    </div>
+                  </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-4">
+                  <i class="fab fa-instagram fa-3x text-muted mb-3"></i>
+                  <p class="text-muted">No social media links configured yet.</p>
+                </div>
+                {% endfor %}
+              </div>
+
+              <div class="text-center mt-4">
+                <button type="button" class="lavender-btn-primary" onclick="addNewSocialMedia()">
+                  <i class="fas fa-plus"></i> Add Social Media Link
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Submit Button -->
           <div class="homepage-form-card">
             <div class="homepage-form-body text-center">
@@ -276,6 +329,340 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+
+// Social Media Management Functions
+function addNewSocialMedia() {
+  const platforms = [
+    {value: 'instagram', label: 'Instagram'},
+    {value: 'facebook', label: 'Facebook'},
+    {value: 'twitter', label: 'Twitter'},
+    {value: 'tiktok', label: 'TikTok'},
+    {value: 'youtube', label: 'YouTube'},
+    {value: 'linkedin', label: 'LinkedIn'},
+    {value: 'pinterest', label: 'Pinterest'},
+    {value: 'snapchat', label: 'Snapchat'},
+    {value: 'whatsapp', label: 'WhatsApp'}
+  ];
+
+  let platformOptions = '';
+  platforms.forEach(platform => {
+    platformOptions += `<option value="${platform.value}">${platform.label}</option>`;
+  });
+
+  const modalHtml = `
+    <div class="modal fade" id="addSocialMediaModal" tabindex="-1" style="z-index: 1055;">
+      <div class="modal-dialog" style="max-width: 500px;">
+        <div class="modal-content" style="border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+          <div class="modal-header" style="background: linear-gradient(135deg, #8b7ba8, #a88bb8); color: white; border-bottom: none; padding: 20px;">
+            <h5 class="modal-title" style="font-weight: 600; font-size: 1.25rem;">Add Social Media Link</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="filter: invert(1);"></button>
+          </div>
+          <form id="addSocialMediaForm">
+            <div class="modal-body" style="padding: 25px;">
+              <div class="mb-3">
+                <label for="platform" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">Platform</label>
+                <select class="form-select" id="platform" name="platform" required style="border: 2px solid #e0e0e0; padding: 10px; font-size: 14px; transition: border-color 0.3s ease;">
+                  <option value="">Select Platform</option>
+                  ${platformOptions}
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="url" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">URL</label>
+                <input type="url" class="form-control" id="url" name="url" required
+                       placeholder="https://instagram.com/yourusername" style="border: 2px solid #e0e0e0; padding: 10px; font-size: 14px; transition: border-color 0.3s ease;">
+              </div>
+              <div class="mb-3">
+                <label for="display_order" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">Display Order</label>
+                <input type="number" class="form-control" id="display_order" name="display_order"
+                       placeholder="1" min="1" style="border: 2px solid #e0e0e0; padding: 10px; font-size: 14px; transition: border-color 0.3s ease;">
+                <div class="form-text" style="font-size: 12px; color: #666; margin-top: 5px;">Lower numbers appear first</div>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked style="width: 18px; height: 18px; border: 2px solid #8b7ba8; margin-right: 10px;">
+                <label class="form-check-label" for="is_active" style="font-weight: 500; color: #333; cursor: pointer;">Active (show in footer)</label>
+              </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #e0e0e0; padding: 20px;">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border: none; padding: 10px 20px; font-weight: 500; background-color: #6c757d; transition: background-color 0.3s ease;">Cancel</button>
+              <button type="submit" class="btn btn-primary" style="border: none; padding: 10px 20px; font-weight: 500; background: linear-gradient(135deg, #8b7ba8, #a88bb8); transition: transform 0.2s ease;">Add Link</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+  const modal = new bootstrap.Modal(document.getElementById('addSocialMediaModal'));
+
+  // Add event listeners before showing modal
+  document.getElementById('addSocialMediaForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    saveSocialMedia(null, 'addSocialMediaForm');
+  });
+
+  document.getElementById('addSocialMediaModal').addEventListener('hidden.bs.modal', function() {
+    this.remove();
+  });
+
+  modal.show();
+
+  // Add focus and hover effects
+  setTimeout(() => {
+    const modalElement = document.getElementById('addSocialMediaModal');
+    if (modalElement) {
+      const inputs = modalElement.querySelectorAll('input, select');
+      const buttons = modalElement.querySelectorAll('button');
+
+      inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+          this.style.borderColor = '#8b7ba8';
+          this.style.boxShadow = '0 0 0 3px rgba(139, 123, 168, 0.1)';
+        });
+        input.addEventListener('blur', function() {
+          this.style.borderColor = '#e0e0e0';
+          this.style.boxShadow = 'none';
+        });
+      });
+
+      buttons.forEach(button => {
+        if (button.classList.contains('btn-primary')) {
+          button.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-1px)';
+            this.style.boxShadow = '0 4px 12px rgba(139, 123, 168, 0.3)';
+          });
+          button.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+          });
+        }
+      });
+    }
+  }, 100);
+}
+
+function editSocialMedia(button) {
+  const id = button.getAttribute('data-id');
+  // Fetch social media data and show edit modal
+  fetch(`/api/socialmedia/${id}/`, {
+    credentials: 'same-origin'
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      showEditModal(data);
+    })
+    .catch(error => {
+      console.error('Error fetching social media data:', error);
+      alert('Error loading social media data. Please check your authentication.');
+    });
+}
+
+function showEditModal(data) {
+  const platforms = [
+    {value: 'instagram', label: 'Instagram'},
+    {value: 'facebook', label: 'Facebook'},
+    {value: 'twitter', label: 'Twitter'},
+    {value: 'tiktok', label: 'TikTok'},
+    {value: 'youtube', label: 'YouTube'},
+    {value: 'linkedin', label: 'LinkedIn'},
+    {value: 'pinterest', label: 'Pinterest'},
+    {value: 'snapchat', label: 'Snapchat'},
+    {value: 'whatsapp', label: 'WhatsApp'}
+  ];
+
+  let platformOptions = '';
+  platforms.forEach(platform => {
+    const selected = data.platform === platform.value ? 'selected' : '';
+    platformOptions += `<option value="${platform.value}" ${selected}>${platform.label}</option>`;
+  });
+
+  const modalHtml = `
+    <div class="modal fade" id="socialMediaModal" tabindex="-1" style="z-index: 1055;">
+      <div class="modal-dialog" style="max-width: 500px;">
+        <div class="modal-content" style="border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+          <div class="modal-header" style="background: linear-gradient(135deg, #8b7ba8, #a88bb8); color: white; border-bottom: none; padding: 20px;">
+            <h5 class="modal-title" style="font-weight: 600; font-size: 1.25rem;">Edit Social Media Link</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="filter: invert(1);"></button>
+          </div>
+          <form id="socialMediaForm">
+            <div class="modal-body" style="padding: 25px;">
+              <div class="mb-3">
+                <label for="platform" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">Platform</label>
+                <select class="form-select" id="platform" name="platform" required style="border: 2px solid #e0e0e0; padding: 10px; font-size: 14px; transition: border-color 0.3s ease;">
+                  <option value="">Select Platform</option>
+                  ${platformOptions}
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="url" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">URL</label>
+                <input type="url" class="form-control" id="url" name="url" required
+                       placeholder="https://instagram.com/yourusername" style="border: 2px solid #e0e0e0; padding: 10px; font-size: 14px; transition: border-color 0.3s ease;">
+              </div>
+              <div class="mb-3">
+                <label for="display_order" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 8px;">Display Order</label>
+                <input type="number" class="form-control" id="display_order" name="display_order" min="1" style="border: 2px solid #e0e0e0; padding: 10px; font-size: 14px; transition: border-color 0.3s ease;">
+                <div class="form-text" style="font-size: 12px; color: #666; margin-top: 5px;">Lower numbers appear first</div>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="is_active" name="is_active" style="width: 18px; height: 18px; border: 2px solid #8b7ba8;">
+                <label class="form-check-label" for="is_active" style="font-weight: 500; color: #333; cursor: pointer;">Active (show in footer)</label>
+              </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #e0e0e0; padding: 20px;">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border: none; padding: 10px 20px; font-weight: 500; background-color: #6c757d; transition: background-color 0.3s ease;">Cancel</button>
+              <button type="submit" class="btn btn-primary" style="border: none; padding: 10px 20px; font-weight: 500; background: linear-gradient(135deg, #8b7ba8, #a88bb8); transition: transform 0.2s ease;">Update Link</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+  const modal = new bootstrap.Modal(document.getElementById('socialMediaModal'));
+  modal.show();
+
+  // Set form values after modal is created
+  document.getElementById('url').value = data.url;
+  document.getElementById('display_order').value = data.display_order;
+  document.getElementById('is_active').checked = data.is_active;
+
+  document.getElementById('socialMediaForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    saveSocialMedia(data.id, 'socialMediaForm');
+  });
+
+  document.getElementById('socialMediaModal').addEventListener('hidden.bs.modal', function() {
+    this.remove();
+  });
+
+  // Add focus and hover effects
+  setTimeout(() => {
+    const modalElement = document.getElementById('socialMediaModal');
+    if (modalElement) {
+      const inputs = modalElement.querySelectorAll('input, select');
+      const buttons = modalElement.querySelectorAll('button');
+
+      inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+          this.style.borderColor = '#8b7ba8';
+          this.style.boxShadow = '0 0 0 3px rgba(139, 123, 168, 0.1)';
+        });
+        input.addEventListener('blur', function() {
+          this.style.borderColor = '#e0e0e0';
+          this.style.boxShadow = 'none';
+        });
+      });
+
+      buttons.forEach(button => {
+        if (button.classList.contains('btn-primary')) {
+          button.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-1px)';
+            this.style.boxShadow = '0 4px 12px rgba(139, 123, 168, 0.3)';
+          });
+          button.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+          });
+        }
+      });
+    }
+  }, 100);
+}
+
+function getCsrfToken() {
+  // Try to get CSRF token from hidden input first
+  const tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+  if (tokenInput) {
+    return tokenInput.value;
+  }
+  
+  // Fallback: get from cookie
+  const cookieValue = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('csrftoken='))
+    ?.split('=')[1];
+  
+  return cookieValue || '';
+}
+
+function saveSocialMedia(id, formId) {
+  const formData = new FormData(document.getElementById(formId));
+  const displayOrderValue = formData.get('display_order');
+  const data = {
+    platform: formData.get('platform'),
+    url: formData.get('url'),
+    display_order: displayOrderValue ? parseInt(displayOrderValue) : 1,
+    is_active: formData.get('is_active') === 'on'
+  };
+
+  const method = id ? 'PUT' : 'POST';
+  const url = id ? `/api/socialmedia/${id}/` : '/api/socialmedia/';
+
+  fetch(url, {
+    method: method,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCsrfToken()
+    },
+    body: JSON.stringify(data),
+    credentials: 'same-origin'
+  })
+  .then(response => {
+    if (!response.ok) {
+      // If response is not ok, try to get the error message
+      return response.text().then(text => {
+        throw new Error(text);
+      });
+    }
+    return response.json();
+  })
+  .then(result => {
+    if (result.success) {
+      // Close modal and reload page
+      const modalId = formId === 'addSocialMediaForm' ? 'addSocialMediaModal' : 'socialMediaModal';
+      const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+      modal.hide();
+      location.reload();
+    } else {
+      alert('Error: ' + (result.error || 'Unknown error'));
+    }
+  })
+  .catch(error => {
+    console.error('Error saving social media:', error);
+    alert('Error saving social media link: ' + error.message);
+  });
+}
+
+function deleteSocialMedia(button) {
+  const id = button.getAttribute('data-id');
+  const platformName = button.getAttribute('data-platform');
+  if (confirm(`Are you sure you want to delete the ${platformName} social media link?`)) {
+    fetch(`/api/socialmedia/${id}/`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      },
+      credentials: 'same-origin'
+    })
+    .then(response => {
+      if (response.ok) {
+        location.reload();
+      } else {
+        alert('Error deleting social media link');
+      }
+    })
+    .catch(error => {
+      console.error('Error deleting social media:', error);
+      alert('Error deleting social media link');
+    });
+  }
+}
 </script>
 
 {% endblock %}

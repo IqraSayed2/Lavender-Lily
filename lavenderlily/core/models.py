@@ -161,3 +161,45 @@ class Newsletter(models.Model):
         verbose_name = "Newsletter"
         verbose_name_plural = "Newsletters"
         ordering = ['-created_at']
+
+
+class SocialMedia(models.Model):
+    PLATFORM_CHOICES = [
+        ('instagram', 'Instagram'),
+        ('facebook', 'Facebook'),
+        ('twitter', 'Twitter'),
+        ('tiktok', 'TikTok'),
+        ('youtube', 'YouTube'),
+        ('linkedin', 'LinkedIn'),
+        ('pinterest', 'Pinterest'),
+        ('snapchat', 'Snapchat'),
+        ('whatsapp', 'WhatsApp'),
+    ]
+
+    platform = models.CharField(max_length=20, choices=PLATFORM_CHOICES, unique=True)
+    url = models.URLField(help_text="Full URL to your social media profile")
+    is_active = models.BooleanField(default=True, help_text="Show this social media link in footer")
+    display_order = models.PositiveIntegerField(default=0, help_text="Order to display (lower numbers first)")
+
+    def __str__(self):
+        return f"{self.get_platform_display()}"
+
+    def get_icon_class(self):
+        """Return the FontAwesome icon class for this platform"""
+        icon_map = {
+            'instagram': 'fab fa-instagram',
+            'facebook': 'fab fa-facebook-f',
+            'twitter': 'fab fa-twitter',
+            'tiktok': 'fab fa-tiktok',
+            'youtube': 'fab fa-youtube',
+            'linkedin': 'fab fa-linkedin-in',
+            'pinterest': 'fab fa-pinterest-p',
+            'snapchat': 'fab fa-snapchat-ghost',
+            'whatsapp': 'fab fa-whatsapp',
+        }
+        return icon_map.get(self.platform, 'fas fa-external-link-alt')
+
+    class Meta:
+        verbose_name = "Social Media Link"
+        verbose_name_plural = "Social Media Links"
+        ordering = ['display_order', 'platform']

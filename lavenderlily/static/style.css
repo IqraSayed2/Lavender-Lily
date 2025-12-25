@@ -3639,9 +3639,14 @@ body {
 }
 
 .llcheckout-payment-method-name {
-  font-size: 0.85rem;
+  font-size: 0.89rem;
   color: #333;
   font-weight: 600;
+}
+
+.llcheckout-payment-method-desc {
+  font-size: small;
+  color: #000000b8;
 }
 
 /* Order Summary */

@@ -155,7 +155,8 @@
                   type="text"
                   name="country"
                   class="llcheckout-form-input"
-                  value="{{ default_address.country|default:'United Arab Emirates' }}"
+                  value="United Arab Emirates"
+                  autocomplete="country-name"
                   required
                 />
               </div>
@@ -173,7 +174,37 @@
               <div class="llcheckout-payment-method selected" data-method="Razorpay">
                 <i class="fab fa-cc-visa"></i>
                 <div class="llcheckout-payment-method-name">
-                  Razorpay
+                  Credit/Debit Card
+                </div>
+                <div class="llcheckout-payment-method-desc">
+                  Visa, Mastercard, American Express
+                </div>
+              </div>
+              <div class="llcheckout-payment-method" data-method="ApplePay">
+                <i class="fab fa-apple-pay"></i>
+                <div class="llcheckout-payment-method-name">
+                  Apple Pay
+                </div>
+                <div class="llcheckout-payment-method-desc">
+                  Pay with Touch ID or Face ID
+                </div>
+              </div>
+              <div class="llcheckout-payment-method" data-method="GooglePay">
+                <i class="fab fa-google-pay"></i>
+                <div class="llcheckout-payment-method-name">
+                  Google Pay
+                </div>
+                <div class="llcheckout-payment-method-desc">
+                  Fast and secure payment
+                </div>
+              </div>
+              <div class="llcheckout-payment-method" data-method="Ziina">
+                <i class="fas fa-credit-card"></i>
+                <div class="llcheckout-payment-method-name">
+                  Ziina
+                </div>
+                <div class="llcheckout-payment-method-desc">
+                  UAE's leading payment gateway
                 </div>
               </div>
             </div>
@@ -257,6 +288,14 @@
       this.classList.add('selected');
       document.getElementById('payment_method').value = this.dataset.method;
     });
+  });
+
+  // Ensure country field is always set to UAE
+  document.addEventListener('DOMContentLoaded', function() {
+    const countryField = document.querySelector('input[name="country"]');
+    if (countryField) {
+      countryField.value = 'United Arab Emirates';
+    }
   });
 </script>
 

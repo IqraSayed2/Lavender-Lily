@@ -101,6 +101,13 @@ def product_detail(request, pk):
     variants = Product.objects.filter(variant_group=product.variant_group).exclude(pk=product.pk).order_by('color__name')
     all_variants = [product] + list(variants)
 
+    # Get related products from same category, excluding current product and its variants
+    related_products = Product.objects.filter(
+        category=product.category
+    ).exclude(
+        Q(pk=product.pk) | Q(variant_group=product.variant_group)
+    ).order_by('?')[:4]  # Random order, limit to 4
+
     context = {
         "product": product,
         "images": images,
@@ -108,6 +115,7 @@ def product_detail(request, pk):
         "all_sizes": all_sizes,
         "available_sizes": available_sizes,
         "all_variants": all_variants,
+        "related_products": related_products,
     }
     return render(request, "store/productdetail.html", context)
 

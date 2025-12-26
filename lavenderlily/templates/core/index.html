@@ -150,7 +150,12 @@
                   class="shop-category-card"
                 >
                   {% if category.cover_image %}
-                  <img src="{{ category.cover_image.url }}" alt="{{ category.name }}" class="shop-category-image">
+                  <div class="shop-category-image-container">
+                    <img src="{{ category.cover_image.url }}" alt="{{ category.name }}" class="shop-category-image">
+                    <div class="shop-category-overlay">
+                      <span class="shop-category-name">{{ category.name }}</span>
+                    </div>
+                  </div>
                   {% else %}
                   <div class="shop-category-placeholder">
                     <i class="fas fa-image"></i>

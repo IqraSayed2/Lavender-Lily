@@ -181,6 +181,38 @@
                 </div>
             </div>
 
+            <!-- You May Also Like Section -->
+            {% if related_products %}
+            <div class="row mt-5">
+                <div class="col-12">
+                    <h3 class="llproduct-reviews-title text-center mb-4">You May Also Like</h3>
+                    <div class="row">
+                        {% for related_product in related_products %}
+                        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 mb-4">
+                            <div class="llrelated-product-card">
+                                <div class="llrelated-product-image-wrapper">
+                                    {% if related_product.image_main %}
+                                        <img src="{{ related_product.image_main.url }}" alt="{{ related_product.name }}" class="llrelated-product-image">
+                                    {% else %}
+                                        <div class="llrelated-product-placeholder">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    {% endif %}
+                                    <a href="{{ related_product.get_absolute_url }}" class="llrelated-view-details-btn">View Details</a>
+                                </div>
+                                <div class="llrelated-product-info">
+                                    <div class="llrelated-product-category">{{ related_product.category }}</div>
+                                    <h4 class="llrelated-product-name">{{ related_product.name }}</h4>
+                                    <div class="llrelated-product-price">AED {{ related_product.price }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
         </div>
     </section>
 

@@ -1,0 +1,1 @@
+// Empty script.js file to prevent 404 errors

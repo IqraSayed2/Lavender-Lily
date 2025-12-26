@@ -50,6 +50,17 @@
                     </div>
                   </div>
 
+                  <div class="mb-4">
+                    <label for="variant_group" class="form-label">Variant Group</label>
+                    <input type="text" class="form-control" id="variant_group" name="variant_group" value="{{ product.variant_group }}" list="variant_groups" placeholder="Leave empty to auto-use product name">
+                    <datalist id="variant_groups">
+                      {% for vg in variant_groups %}
+                      <option value="{{ vg }}">
+                      {% endfor %}
+                    </datalist>
+                    <small class="form-text text-muted">Use this to group products with the same design but different colors</small>
+                  </div>
+
                   <div class="row">
                     <div class="col-md-6 mb-4">
                       <label for="category" class="form-label">Category *</label>

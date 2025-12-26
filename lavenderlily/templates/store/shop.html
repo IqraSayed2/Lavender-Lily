@@ -89,9 +89,10 @@
                   <div class="llshop-color-options">
                     {% for c in colors %}
                       <div
-                        class="llshop-color-circle llshop-color-{{ c|lower }}{% if request.GET.color == c %} selected{% endif %}"
-                        onclick="toggleColor('{{ c }}', this)"
-                        data-color="{{ c }}"
+                        class="llshop-color-circle{% if request.GET.color == c.name %} selected{% endif %}"
+                        onclick="toggleColor('{{ c.name }}', this)"
+                        data-color="{{ c.name }}"
+                        style="background-color: {% if c.hex_code %}{% if c.hex_code|slice:':1' != '#' %}#{% endif %}{{ c.hex_code }}{% else %}#ccc{% endif %}"
                       ></div>
                     {% endfor %}
                     <div
@@ -116,7 +117,14 @@
               {% for product in products %}
               <div class="llshop-product-card">
                 <div class="llshop-product-image-wrapper">
-                  <img src="{{ product.image_main.url }}" alt="{{ product.name }}" class="llshop-product-image" />
+                  {% if product.image_main %}
+                    <img src="{{ product.image_main.url }}" alt="{{ product.name }}" class="llshop-product-image" />
+                  {% else %}
+                    <div class="llshop-product-placeholder">
+                      <i class="fas fa-image"></i>
+                      <span>No Image</span>
+                    </div>
+                  {% endif %}
                   <a href="{{ product.get_absolute_url }}" class="llshop-view-details-btn">View Details</a>
                 </div>
 

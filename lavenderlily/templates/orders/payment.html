@@ -16,10 +16,6 @@
             <p class="payment-results-count">
               {% if payment_method == 'Ziina' %}
                 Secure payment processing with Ziina
-              {% elif payment_method == 'ApplePay' %}
-                Secure payment processing with Apple Pay
-              {% elif payment_method == 'GooglePay' %}
-                Secure payment processing with Google Pay
               {% else %}
                 Secure payment processing with Razorpay
               {% endif %}
@@ -120,10 +116,6 @@
                   <div class="payment-method-icon">
                     {% if payment_method == 'Ziina' %}
                       <i class="fas fa-credit-card"></i>
-                    {% elif payment_method == 'ApplePay' %}
-                      <i class="fab fa-apple-pay"></i>
-                    {% elif payment_method == 'GooglePay' %}
-                      <i class="fab fa-google-pay"></i>
                     {% else %}
                       <i class="fab fa-cc-visa"></i>
                     {% endif %}
@@ -132,23 +124,15 @@
                     <h6 class="llpayment-method-name">
                       {% if payment_method == 'Ziina' %}
                         Ziina
-                      {% elif payment_method == 'ApplePay' %}
-                        Apple Pay
-                      {% elif payment_method == 'GooglePay' %}
-                        Google Pay
                       {% else %}
-                        Credit/Debit Card
+                        Razorpay
                       {% endif %}
                     </h6>
                     <p class="payment-method-desc">
                       {% if payment_method == 'Ziina' %}
                         UAE's leading payment gateway
-                      {% elif payment_method == 'ApplePay' %}
-                        Pay with Touch ID or Face ID
-                      {% elif payment_method == 'GooglePay' %}
-                        Fast and secure payment
                       {% else %}
-                        Visa, Mastercard, American Express
+                        Secure online payments
                       {% endif %}
                     </p>
                     <div class="payment-security-badges">
@@ -192,10 +176,6 @@
                 <i class="fas fa-info-circle me-1"></i>
                 {% if payment_method == 'Ziina' %}
                   Your payment is secured by Ziina
-                {% elif payment_method == 'ApplePay' %}
-                  Your payment is secured by Apple Pay
-                {% elif payment_method == 'GooglePay' %}
-                  Your payment is secured by Google Pay
                 {% else %}
                   Your payment is secured by Razorpay
                 {% endif %}
@@ -224,8 +204,8 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    {% if payment_method == 'Razorpay' or payment_method == 'ApplePay' or payment_method == 'GooglePay' %}
-    // Razorpay payment integration (includes Apple Pay and Google Pay)
+    {% if payment_method == 'Razorpay' %}
+    // Razorpay payment integration
     const options = {
         "key": "{{ razorpay_key_id }}",
         "amount": "{{ amount }}",
@@ -245,13 +225,6 @@ document.addEventListener('DOMContentLoaded', function() {
         "theme": {
             "color": "#7c3aed"
         },
-        {% if payment_method == 'ApplePay' %}
-        "method": "wallet",
-        "wallet": "apple_pay",
-        {% elif payment_method == 'GooglePay' %}
-        "method": "wallet",
-        "wallet": "google_pay",
-        {% endif %}
         "handler": function (response) {
             // Handle successful payment
             const form = document.createElement('form');

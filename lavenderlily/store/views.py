@@ -55,7 +55,7 @@ def shop(request):
 
     # unique categories & colors for sidebar filters
     categories_list = sorted(Product.objects.values_list("category__name", flat=True).distinct())
-    colors_list = sorted(Product.objects.values_list("color__name", flat=True).distinct())
+    colors_list = Color.objects.filter(name__in=Product.objects.values_list("color__name", flat=True).distinct()).order_by("name")
 
     context = {
         "products": page_obj.object_list,
@@ -97,12 +97,17 @@ def product_detail(request, pk):
     all_sizes = Size.objects.all()
     available_sizes = product.sizes.all()
 
+    # Get product variants (same variant_group, different colors)
+    variants = Product.objects.filter(variant_group=product.variant_group).exclude(pk=product.pk).order_by('color__name')
+    all_variants = [product] + list(variants)
+
     context = {
         "product": product,
         "images": images,
         "reviews": reviews,
         "all_sizes": all_sizes,
         "available_sizes": available_sizes,
+        "all_variants": all_variants,
     }
     return render(request, "store/productdetail.html", context)
 
@@ -181,6 +186,7 @@ def add_product(request):
         try:
             # Get form data
             name = request.POST.get('name')
+            variant_group = request.POST.get('variant_group', '').strip()
             category_id = request.POST.get('category')
             color_id = request.POST.get('color')
             price = request.POST.get('price')
@@ -201,6 +207,7 @@ def add_product(request):
 
             product = Product.objects.create(
                 name=name,
+                variant_group=variant_group or name,  # Use name if variant_group empty
                 category=category,
                 color=color,
                 price=price,
@@ -240,11 +247,13 @@ def add_product(request):
     categories = Category.objects.all().order_by('name')
     colors = Color.objects.all().order_by('name')
     sizes = Size.objects.all().order_by('order')
+    variant_groups = sorted(Product.objects.values_list('variant_group', flat=True).distinct())
 
     context = {
         'categories': categories,
         'colors': colors,
         'sizes': sizes,
+        'variant_groups': variant_groups,
     }
     return render(request, 'admin/add_product.html', context)
 
@@ -259,6 +268,7 @@ def edit_product(request, pk):
         try:
             # Get form data
             name = request.POST.get('name')
+            variant_group = request.POST.get('variant_group', '').strip()
             category_id = request.POST.get('category')
             color_id = request.POST.get('color')
             price = request.POST.get('price')
@@ -278,6 +288,7 @@ def edit_product(request, pk):
             color = get_object_or_404(Color, pk=color_id)
 
             product.name = name
+            product.variant_group = variant_group or name
             product.category = category
             product.color = color
             product.price = price
@@ -318,6 +329,7 @@ def edit_product(request, pk):
     categories = Category.objects.all().order_by('name')
     colors = Color.objects.all().order_by('name')
     sizes = Size.objects.all().order_by('order')
+    variant_groups = sorted(Product.objects.values_list('variant_group', flat=True).distinct())
 
     context = {
         'product': product,
@@ -325,6 +337,7 @@ def edit_product(request, pk):
         'colors': colors,
         'sizes': sizes,
         'selected_sizes': [size.pk for size in product.sizes.all()],
+        'variant_groups': variant_groups,
     }
     return render(request, 'admin/edit_product.html', context)
 

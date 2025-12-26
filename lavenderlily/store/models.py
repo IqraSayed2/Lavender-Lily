@@ -50,6 +50,8 @@ class Color(models.Model):
                 'Navy': '#000080',
             }
             self.hex_code = color_hex_map.get(self.name, '')
+        elif self.hex_code and not self.hex_code.startswith('#'):
+            self.hex_code = '#' + self.hex_code.upper()
         super().save(*args, **kwargs)
 
 class Size(models.Model):
@@ -65,6 +67,7 @@ class Size(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
+    variant_group = models.CharField(max_length=255, blank=True, help_text="Group products with same design but different colors/sizes")
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
     sizes = models.ManyToManyField(Size, blank=True)
@@ -91,6 +94,8 @@ class Product(models.Model):
                 slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = slug
+        if not self.variant_group:
+            self.variant_group = self.name
         super().save(*args, **kwargs)
 
     def __str__(self):

@@ -82,7 +82,7 @@
                   {% for color in colors %}
                   <tr>
                     <td>
-                      <div style="width: 30px; height: 30px; border-radius: 50%; background-color: {% if color.hex_code %}{{ color.hex_code }}{% else %}#ccc{% endif %}; border: 2px solid #ddd;"></div>
+                      <div style="width: 30px; height: 30px; border-radius: 50%; background-color: {% if color.hex_code %}{% if color.hex_code|slice:':1' != '#' %}#{% endif %}{{ color.hex_code }}{% else %}#ccc{% endif %}; border: 2px solid #ddd;"></div>
                     </td>
                     <td>
                       <strong>{{ color.name }}</strong>
@@ -195,7 +195,7 @@ document.querySelectorAll('.form-control, .form-select').forEach(element => {
 function editColor(id, name, hexCode) {
   document.getElementById('edit_color_id').value = id;
   document.getElementById('edit_name').value = name;
-  document.getElementById('edit_hex_code').value = hexCode;
+  document.getElementById('edit_hex_code').value = hexCode ? hexCode.replace('#', '') : '';
 
   const modal = new bootstrap.Modal(document.getElementById('editColorModal'));
   modal.show();

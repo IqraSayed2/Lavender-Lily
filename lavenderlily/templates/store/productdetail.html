@@ -58,7 +58,9 @@
                         <div class="llproduct-color-section">
                             <span class="llproduct-color-label">Color</span>
                             <div class="llproduct-color-options">
-                                <button class="llproduct-color-btn llproduct-color-lavender active" onclick="selectColor(this)"></button>
+                                {% for variant in all_variants %}
+                                <a href="{{ variant.get_absolute_url }}" class="llproduct-color-btn{% if variant.pk == product.pk %} active{% endif %}" title="{{ variant.color.name }}" style="background-color: {% if variant.color.hex_code %}{% if variant.color.hex_code|slice:':1' != '#' %}#{% endif %}{{ variant.color.hex_code }}{% else %}#ccc{% endif %}"></a>
+                                {% endfor %}
                             </div>
                         </div>
 
@@ -192,11 +194,6 @@
 
         function selectSize(button) {
             document.querySelectorAll('.llproduct-size-btn').forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-        }
-
-        function selectColor(button) {
-            document.querySelectorAll('.llproduct-color-btn').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
         }
 

@@ -1,6 +1,6 @@
 # LavenderLily - UAE E-commerce Platform
 
-A modern, responsive e-commerce website built with Django for selling lavender products in the UAE market. Features multiple payment gateways including Razorpay, Ziina, Apple Pay, and Google Pay.
+A modern, responsive e-commerce website built with Django for selling clothing products in the UAE market. Features multiple payment gateways including Razorpay, Ziina, Apple Pay, and Google Pay.
 
 ## Features
 
@@ -182,14 +182,6 @@ python manage.py test
 3. Make your changes
 4. Run tests
 5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For support, email support@lavenderlily.ae or create an issue in this repository.
 
 ## Acknowledgments
 

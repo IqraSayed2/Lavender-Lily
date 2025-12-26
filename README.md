@@ -183,13 +183,6 @@ python manage.py test
 4. Run tests
 5. Submit a pull request
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For support, email support@lavenderlily.ae or create an issue in this repository.
 
 ## Acknowledgments
 

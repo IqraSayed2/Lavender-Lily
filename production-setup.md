@@ -38,11 +38,6 @@ ALLOWED_HOSTS = ['lavenderlily.ae', '.run.app']
 
 # Use environment variables for secrets
 SECRET_KEY = config('SECRET_KEY')
-RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID')
-RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET')
-ZIINA_MERCHANT_ID = config('ZIINA_MERCHANT_ID')
-ZIINA_API_KEY = config('ZIINA_API_KEY')
-ZIINA_API_SECRET = config('ZIINA_API_SECRET')
 
 # Database (Cloud SQL)
 DATABASES = {
@@ -176,20 +171,19 @@ gcloud run services update lavenderlily \
   --set-env-vars DB_HOST="/cloudsql/YOUR_PROJECT_ID:us-central1:lavenderlily-db",DB_NAME="lavenderlily",DB_USER="root",DB_PASSWORD="your-password"
 ```
 
-### 6️⃣ Payment gateways (UAE reality)
+### 6️⃣ Payment System
 
-For real customers:
-- **Ziina** → primary
-- **Apple Pay / Google Pay** via Ziina
-- Razorpay only if gateway supports UAE merchant
+The application uses a **simulated payment system** for testing and development purposes. In production, you can:
 
-Set environment variables:
+- Keep the fake payment for demo purposes
+- Integrate real payment gateways like Stripe, PayPal, or local UAE gateways (Ziina, Tap & Go)
+- The payment flow simulates successful transactions
+
+For real payments, add environment variables for your chosen gateway:
 ```
-RAZORPAY_KEY_ID=your_live_key
-RAZORPAY_KEY_SECRET=your_live_secret
-ZIINA_MERCHANT_ID=your_ziina_id
-ZIINA_API_KEY=your_ziina_key
-ZIINA_API_SECRET=your_ziina_secret
+STRIPE_PUBLIC_KEY=your_stripe_publishable_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
+# Or other payment provider keys
 ```
 
 ## What you do NOT need to worry about
@@ -232,17 +226,17 @@ CSRF_COOKIE_SECURE = True
 - [ ] Cloud Run deployment successful
 - [ ] Custom domain attached with SSL
 - [ ] Cloud SQL database connected
-- [ ] Payment gateways configured with live keys
+- [ ] Payment system configured (currently simulated)
 - [ ] Static files collected
 - [ ] Admin user created
-- [ ] Test payments with small amounts
+- [ ] Test orders with simulated payments
 - [ ] Email notifications working
 
 ## Testing and Launch
 
 1. Deploy to Cloud Run with test environment variables
-2. Test all functionality
-3. Switch to production payment keys
+2. Test all functionality including simulated payments
+3. Test order flow from cart to completion
 4. Launch!
 
 ## Troubleshooting
@@ -251,7 +245,7 @@ CSRF_COOKIE_SECURE = True
 - **Container build fails**: Check Dockerfile and requirements.txt
 - **Database connection fails**: Verify Cloud SQL connection and credentials
 - **Static files not loading**: Ensure collectstatic ran in container
-- **Payment callbacks fail**: Check webhook URLs and SSL
+- **Payment simulation fails**: Check JavaScript console for errors
 
 ### Logs
 ```bash
@@ -262,6 +256,6 @@ gcloud logs read --filter "resource.type=cloud_run_revision AND resource.labels.
 
 - Google Cloud Run documentation
 - Django deployment docs
-- Payment gateway support (Razorpay/Ziina)
+- General payment gateway documentation (when implementing real payments)
 
 Your site will be live for the world 🌍 and behave like a real online store!

@@ -147,16 +147,4 @@ EMAIL_HOST_USER = '1qrasayed002@gmail.com'
 EMAIL_HOST_PASSWORD = 'stqx yacb avrr mxig' 
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-ADMIN_EMAIL = EMAIL_HOST_USER
-
-# Razorpay Settings (Production - UAE)
-RAZORPAY_KEY_ID = 'your_razorpay_live_key_id'  # Replace with your live Razorpay key
-RAZORPAY_KEY_SECRET = 'your_razorpay_live_key_secret'  # Replace with your live Razorpay secret
-RAZORPAY_CURRENCY = 'AED'  # Changed to AED for UAE
-
-# Ziina Settings (Production - UAE)
-ZIINA_MERCHANT_ID = 'your_ziina_merchant_id'  # Replace with your Ziina merchant ID
-ZIINA_API_KEY = 'your_ziina_api_key'  # Replace with your Ziina API key
-ZIINA_API_SECRET = 'your_ziina_api_secret'  # Replace with your Ziina API secret
-ZIINA_BASE_URL = 'https://api.ziina.com'  # Ziina API base URL
-ZIINA_CURRENCY = 'AED' 
+ADMIN_EMAIL = EMAIL_HOST_USER 

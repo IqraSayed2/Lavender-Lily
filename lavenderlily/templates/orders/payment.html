@@ -14,11 +14,7 @@
           <div class="text-center">
             <h1 class="payment-page-title">Complete Your Payment</h1>
             <p class="payment-results-count">
-              {% if payment_method == 'Ziina' %}
-                Secure payment processing with Ziina
-              {% else %}
-                Secure payment processing with Razorpay
-              {% endif %}
+              Secure demo payment processing
             </p>
           </div>
         </div>
@@ -114,33 +110,21 @@
                 <h5 class="payment-info-title">Payment Method</h5>
                 <div class="payment-method-card">
                   <div class="payment-method-icon">
-                    {% if payment_method == 'Ziina' %}
-                      <i class="fas fa-credit-card"></i>
-                    {% else %}
-                      <i class="fab fa-cc-visa"></i>
-                    {% endif %}
+                    <i class="fas fa-credit-card"></i>
                   </div>
                   <div class="llpayment-method-details">
                     <h6 class="llpayment-method-name">
-                      {% if payment_method == 'Ziina' %}
-                        Ziina
-                      {% else %}
-                        Razorpay
-                      {% endif %}
+                      Fake Payment
                     </h6>
                     <p class="payment-method-desc">
-                      {% if payment_method == 'Ziina' %}
-                        UAE's leading payment gateway
-                      {% else %}
-                        Secure online payments
-                      {% endif %}
+                      Demo payment processing
                     </p>
                     <div class="payment-security-badges">
                       <span class="payment-badge">
-                        <i class="fas fa-shield-alt"></i> SSL Encrypted
+                        <i class="fas fa-shield-alt"></i> Demo Mode
                       </span>
                       <span class="payment-badge">
-                        <i class="fas fa-lock"></i> Secure
+                        <i class="fas fa-check"></i> Always Success
                       </span>
                     </div>
                   </div>
@@ -174,16 +158,12 @@
 
               <div class="payment-notice">
                 <i class="fas fa-info-circle me-1"></i>
-                {% if payment_method == 'Ziina' %}
-                  Your payment is secured by Ziina
-                {% else %}
-                  Your payment is secured by Razorpay
-                {% endif %}
+                This is a demo payment system - clicking pay will simulate successful payment
               </div>
 
               <div class="payment-security-notice">
-                <i class="fas fa-lock me-1"></i>
-                Your payment information is secure and encrypted
+                <i class="fas fa-check me-1"></i>
+                Demo mode: Payment will always succeed
               </div>
             </div>
           </div>
@@ -201,115 +181,42 @@
   </div>
 </section>
 
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    {% if payment_method == 'Razorpay' %}
-    // Razorpay payment integration
-    const options = {
-        "key": "{{ razorpay_key_id }}",
-        "amount": "{{ amount }}",
-        "currency": "{{ currency }}",
-        "name": "Lavender Lily",
-        "description": "Order #{{ order.order_number }}",
-        "order_id": "{{ razorpay_order_id }}",
-        "prefill": {
-            "name": "{{ customer_name }}",
-            "email": "{{ customer_email }}",
-            "contact": "{{ customer_phone }}"
-        },
-        "notes": {
-            "country": "UAE",
-            "currency": "AED"
-        },
-        "theme": {
-            "color": "#7c3aed"
-        },
-        "handler": function (response) {
-            // Handle successful payment
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{{ callback_url }}';
-
-            const fields = {
-                'razorpay_payment_id': response.razorpay_payment_id,
-                'razorpay_order_id': response.razorpay_order_id,
-                'razorpay_signature': response.razorpay_signature
-            };
-
-            for (const [key, value] of Object.entries(fields)) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = value;
-                form.appendChild(input);
-            }
-
-            document.body.appendChild(form);
-            form.submit();
-        },
-        "modal": {
-            "ondismiss": function() {
-                // Handle payment modal dismissal (user cancelled)
-                window.location.href = '{{ callback_url }}?razorpay_order_id={{ razorpay_order_id }}';
-            }
-        }
-    };
-
-    const rzp = new Razorpay(options);
-
-    document.getElementById('rzp-button1').onclick = function(e) {
-        rzp.open();
-        e.preventDefault();
-    };
-
-    {% elif payment_method == 'Ziina' %}
-    // Ziina payment integration (Production)
     document.getElementById('rzp-button1').onclick = function(e) {
         e.preventDefault();
 
         // Show loading state
         const button = document.getElementById('rzp-button1');
         const originalText = button.innerHTML;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing Payment...';
         button.disabled = true;
 
-        // Create Ziina payment session
-        fetch('/orders/create-ziina-payment/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify({
-                order_number: '{{ order.order_number }}',
-                amount: {{ amount }},
-                currency: '{{ currency }}'
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Redirect to Ziina payment page
-                window.location.href = data.payment_url;
-            } else {
-                // Reset button
-                button.innerHTML = originalText;
-                button.disabled = false;
+        // Simulate payment processing delay
+        setTimeout(function() {
+            // Create form to submit payment
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ callback_url }}';
 
-                alert('Payment initialization failed: ' + (data.error || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            // Reset button
-            button.innerHTML = originalText;
-            button.disabled = false;
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            form.appendChild(csrfInput);
 
-            console.error('Ziina payment error:', error);
-            alert('Payment failed. Please try again.');
-        });
+            // Add order number
+            const orderInput = document.createElement('input');
+            orderInput.type = 'hidden';
+            orderInput.name = 'order_number';
+            orderInput.value = '{{ order.order_number }}';
+            form.appendChild(orderInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        }, 2000); // 2 second delay to simulate processing
     };
-    {% endif %}
 });
 </script>
 

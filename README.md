@@ -1,14 +1,12 @@
 # LavenderLily - UAE E-commerce Platform
 
-A modern, responsive e-commerce website built with Django for selling clothing products in the UAE market. Features multiple payment gateways including Razorpay, Ziina, Apple Pay, and Google Pay.
+A modern, responsive e-commerce website built with Django for selling clothing products in the UAE market. Features a simulated payment system for testing and development.
 
 ## Features
 
 - 🛒 **Product Catalog**: Browse and search products by categories
 - 🛍️ **Shopping Cart**: Add/remove items, quantity management
-- 💳 **Multiple Payment Options**:
-  - Razorpay (Cards, Apple Pay, Google Pay)
-  - Ziina (UAE local payments)
+- 💳 **Simulated Payment**: Fake payment processing for testing (always succeeds)
 - 📧 **Email Notifications**: Order confirmations and updates
 - 👨‍💼 **Admin Panel**: Complete order and product management
 - 📱 **Mobile Responsive**: Optimized for all devices
@@ -81,21 +79,6 @@ A modern, responsive e-commerce website built with Django for selling clothing p
 
 ## Configuration
 
-### Payment Gateways
-
-Update the following in `lavenderlily/settings.py`:
-
-```python
-# Razorpay
-RAZORPAY_KEY_ID = 'your_razorpay_key_id'
-RAZORPAY_KEY_SECRET = 'your_razorpay_key_secret'
-
-# Ziina (for UAE payments)
-ZIINA_MERCHANT_ID = 'your_ziina_merchant_id'
-ZIINA_API_KEY = 'your_ziina_api_key'
-ZIINA_API_SECRET = 'your_ziina_api_secret'
-```
-
 ### Email Configuration
 
 For email notifications, configure SMTP in `settings.py`:
@@ -128,8 +111,8 @@ EMAIL_HOST_PASSWORD = 'your_app_password'
 - Browse products on the homepage
 - Add items to cart
 - Proceed to checkout
-- Select payment method (Razorpay/Ziina)
-- Complete payment
+- Complete payment (simulated - always succeeds)
+- Receive order confirmation
 
 ### For Admins:
 
@@ -164,6 +147,7 @@ For production deployment, follow these steps:
 5. Set up reverse proxy with nginx
 6. Obtain SSL certificate
 7. Configure environment variables for secrets
+8. **Note**: Payment system is currently simulated for testing
 
 See the [Production Setup Guide](production-setup.md) for detailed instructions.
 
@@ -186,6 +170,4 @@ python manage.py test
 ## Acknowledgments
 
 - Django framework
-- Razorpay payment gateway
-- Ziina UAE payment solutions
 - Bootstrap for responsive design
